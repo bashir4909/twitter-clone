@@ -1,0 +1,2 @@
+# do not save database files, it's stupid, Richard
+*.db
