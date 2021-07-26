@@ -8,11 +8,12 @@ VALUES
 
 --@block
 INSERT INTO tweet (content, userid, tweetdate)
-VALUES ("i was practicing my stabs on the wall", 2, datetime('now'))
+VALUES ("Just realized I havent tweeted at all :D ", 3, datetime('now'))
 
 --@block
 INSERT INTO follow (followerid, followingid)
-VALUES (3, 1)
+VALUES 
+    (2, 4);
 
 --@block
 CREATE TABLE user (
@@ -34,19 +35,31 @@ CREATE TABLE follow (
     followerid INTEGER,
     followingid INTEGER,
     FOREIGN KEY (followerid) REFERENCES user(rowid),
-    FOREIGN KEY (followingid) REFERENCES user(rowid)
+    FOREIGN KEY (followingid) REFERENCES user(rowid),
+    UNIQUE (followerid, followingid)
 )
 
 --@block
-SELECT * FROM tweet
+SELECT content, username, fullname,tweetdate FROM tweet
+LEFT JOIN user ON tweet.userid=user.rowid
 WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3)
 ORDER BY tweetdate DESC
 
 --@block
-SELECT rowid,* FROM user;
+SELECT content, userid 
+FROM tweet
+WHERE userid IS 1
+ORDER BY tweetdate DESC
+
+--@block
+SELECT rowid FROM user WHERE username IS 'test_user3';
 
 --@block
 SELECT rowid, * FROM tweet;
 
 --@block
 SELECT datetime('now')
+
+--@block
+SELECT rowid FROM user WHERE username IS 'test_user1'
+
