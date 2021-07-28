@@ -134,18 +134,48 @@ app.post("/api/v1/follow", (req, res) => {
     VALUES ($followerid, $followingid)
     `, queryparams, (err) => {
     if (err) { console.log(err) }
+
+    res.send("Success")
   })
-  res.send("SUCCESS")
+})
+
+app.post("/api/v1/unfollow", (req, res) => {
+  let $followerid = Number(req.body.followerid)
+  let $followingid = Number(req.body.followingid)
+  let queryparams = {
+    $followingid,
+    $followerid
+  }
+  console.log(queryparams)
+  db.run(`
+    DELETE FROM follow 
+    WHERE followerid IS $followerid AND followingid IS $followingid
+    `, queryparams, (err) => {
+    if (err) { console.log(err) }
+
+    res.send("Success")
+  })
 })
 
 app.get("/api/v1/allusers", (req, res) => {
-  db.all(`
+  if (req.cookies.userid) {
+    let $userid = req.cookies.userid
+    db.all(`
+      SELECT 
+          rowid,  
+          username,
+          CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid=$userid) THEN 1 ELSE 0 END AS isfollow
+      FROM user
+    `, { $userid }, (err, rows) => {
+      res.json(rows)
+    })
+  } else {
+    db.all(`
     SELECT username  FROM user
   `, (err, rows) => {
-    console.log(rows)
-    res.json(rows)
-  })
-
+      res.json(rows)
+    })
+  }
 })
 
 

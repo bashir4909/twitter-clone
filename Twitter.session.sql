@@ -63,3 +63,9 @@ SELECT datetime('now')
 --@block
 SELECT rowid FROM user WHERE username IS 'test_user1'
 
+--@block
+SELECT 
+    rowid,  
+    username,
+    CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid=7) THEN 1 ELSE 0 END AS isfollow
+FROM user
