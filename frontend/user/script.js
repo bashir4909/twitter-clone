@@ -58,8 +58,4 @@ fwButton.addEventListener("click", (evt) => {
         body: JSON.stringify(data)
       })
     })
-    //fetch("/api/v1/follow", {
-    //  method: 'POST',
-    //  body: JSON.stringify(followdata)
-    //})
 })
