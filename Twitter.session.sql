@@ -42,7 +42,7 @@ CREATE TABLE follow (
 --@block
 SELECT content, username, fullname,tweetdate FROM tweet
 LEFT JOIN user ON tweet.userid=user.rowid
-WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3)
+WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3) OR userid IS 3
 ORDER BY tweetdate DESC
 
 --@block
@@ -55,7 +55,7 @@ ORDER BY tweetdate DESC
 SELECT rowid FROM user WHERE username IS 'test_user3';
 
 --@block
-SELECT rowid, * FROM tweet;
+SELECT rowid, * FROM user;
 
 --@block
 SELECT datetime('now')

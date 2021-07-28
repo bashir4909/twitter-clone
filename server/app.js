@@ -14,14 +14,6 @@ app.use(express.json())
 app.use(express.urlencoded())
 app.use("/", express.static("frontend"))
 
-const sprightly = require('sprightly')
-app.engine('spy', sprightly)
-app.set("view engine", "spy")
-
-app.get("/u/:username", (req, res) => {
-  res.render("userpage.spy", { "title": req.params.username })
-})
-
 app.post("/api/v1/login", (req, res) => {
   console.log(req.body.username)
   username2userid(req.body.username, (userid) => {
@@ -33,6 +25,21 @@ app.post("/api/v1/login", (req, res) => {
 app.post("/api/v1/logout", (req, res) => {
   res.clearCookie("userid")
   res.redirect("/home.html")
+})
+
+app.post("/api/v1/newuser", (req, res) => {
+  db.run(`
+  INSERT INTO user (username, fullname, bio)
+  VALUES ($username, $fullname, $bio)
+  `, {
+    $username: req.body.username,
+    $fullname: req.body.fullname,
+    $bio: req.body.bio
+  })
+  username2userid(req.body.username, (userid) => {
+    res.cookie("userid", userid)
+    res.redirect("/home.html")
+  })
 })
 
 // Use following function to make queries using username
@@ -83,7 +90,7 @@ app.get("/api/v1/timeline", (req, res) => {
   db.all(`
     SELECT content, username, userid, fullname,tweetdate FROM tweet
     LEFT JOIN user ON tweet.userid=user.rowid
-    WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid)
+    WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid) OR userid IS $userid
     ORDER BY tweetdate DESC
   `, {
     $userid
@@ -93,26 +100,23 @@ app.get("/api/v1/timeline", (req, res) => {
 })
 
 app.post('/api/v1/newtweet', (req, res) => {
-  let username = req.body.username
+  let $userid = req.cookies.userid
   let $tweettext = req.body.tweettext
-  if ((!username) | (!$tweettext)) {
+  if ((!$userid) | (!$tweettext)) {
     res.send("Wrong request format")
   } else {
-    db.get(`SELECT rowid FROM user WHERE username IS '${username}'`, (err, row) => {
-      let $userid = row.rowid
-      db.run(`
+    db.run(`
       INSERT INTO tweet (content, userid, tweetdate)
       VALUES ( $tweettext, $userid, datetime('now') )
       `, {
-        $tweettext,
-        $userid
-      }, (err) => {
-        if (err) {
-          console.log(err)
-        } else {
-          res.send("Tweet sent successfully")
-        }
-      })
+      $tweettext,
+      $userid
+    }, (err) => {
+      if (err) {
+        console.log(err)
+      } else {
+        res.redirect("/home.html")
+      }
     })
   }
 })
@@ -132,6 +136,16 @@ app.post("/api/v1/follow", (req, res) => {
     if (err) { console.log(err) }
   })
   res.send("SUCCESS")
+})
+
+app.get("/api/v1/allusers", (req, res) => {
+  db.all(`
+    SELECT username  FROM user
+  `, (err, rows) => {
+    console.log(rows)
+    res.json(rows)
+  })
+
 })
 
 

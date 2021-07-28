@@ -5,27 +5,68 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Homepage</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <title>Twitter</title>
 </head>
-<form action="/api/v1/login" method="post" id="login-form" hidden>
-  <label for="username">Enter your username here</label>
-  <input type="text" name="username" id="username">
-  <input type="submit" name="login" value="Login">
-</form>
-<div id="timeline">
-  <dl></dl>
-</div>
-<form action="/api/v1/logout" method="POST">
-  <input type="submit" name="logout" value="Logout">
-</form>
 
 <body>
+
+  <div class="container is-fluid">
+    <form action="/api/v1/newtweet" method="POST">
+      <input type="textarea" name="tweettext" id="" class="textarea">
+      <input type="submit" value="Tweet" class="button">
+    </form>
+  </div>
+
+  <div id="timeline" class="containter">
+    <dl></dl>
+  </div>
+
+  <form action="/api/v1/logout" method="POST">
+    <input type="submit" name="logout" value="Logout">
+  </form>
+
+  <div class="modal" id="login-form-container">
+    <div class="modal-background columns"></div>
+    <div class="modal-content column is-one-quarter is-offset-one-quarter">
+      <form action="/api/v1/login" method="post" id="login-form">
+        <div class="field">
+          <label for="username" class="label">Enter your username here</label>
+          <div class="control">
+            <input type="text" name="username" id="username" class="input column">
+          </div>
+        </div>
+        <input type="submit" name="login" value="Login" class="button">
+      </form>
+      <br>
+      <form action="/api/v1/newuser" method="POST" id="new-user-form">
+        <p>Create New User</p>
+        <div class="field">
+          <label for="username" class="label">Username</label>
+          <div class="control">
+            <input type="text" name="username" class="input">
+          </div>
+          <label for="fullname" class="label">Fullname</label>
+          <div class="control">
+            <input type="text" name="fullname" class="input">
+          </div>
+          <label for="bio" class="label">Bio</label>
+          <div class="control">
+            <input type="textarea" name="bio" class="textarea">
+          </div>
+        </div>
+        <input type="submit" value="Register" class="button">
+      </form>
+
+    </div>
+  </div>
+
   <script>
     function readCookies() {
       let cookies = {}
       document.cookie.split(";").forEach((pair) => {
         let kv = pair.split("=")
-        cookies[kv[0]] = kv[1]
+        cookies[kv[0].trim()] = kv[1]
       })
       return cookies
     }
@@ -36,10 +77,19 @@
       a.setAttribute("href", `/userpage.html?username=${twUsername}`)
       a.innerText = "@" + twUsername
       dt.appendChild(a)
-      twList.appendChild(dt)
       let dd = document.createElement("dd")
-      dd.innerText = twContent
-      twList.appendChild(dd)
+      let p = document.createElement("p")
+      p.innerText = twContent
+      dd.appendChild(p)
+        // parent div for bulma media
+      let div = document.createElement("div")
+      div.classList.add("media")
+      dt.classList.add("media-left")
+      dd.classList.add("media-right")
+      p.classList.add("media-content")
+      div.appendChild(dt)
+      div.appendChild(dd)
+      twList.appendChild(div)
     }
 
     function populateTweets() {
@@ -53,16 +103,13 @@
     }
     let userid = readCookies()["userid"]
     let loginform = document.querySelector("#login-form")
+    let loginformcontainer = document.querySelector("#login-form-container")
     let timeline = document.querySelector("#timeline")
     let twList = document.querySelector("#timeline > dl")
-    if (userid) {
-      loginform.setAttribute("hidden", "")
-      timeline.removeAttribute("hidden")
-      populateTweets()
+    if (!userid) {
+      loginformcontainer.classList.add("is-active")
     } else {
-      loginform.removeAttribute("hidden")
-      timeline.setAttribute("hidden", "")
-
+      populateTweets()
     }
   </script>
 </body>

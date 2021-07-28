@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="userlist" class="containter">
+    <ul></ul>
+  </div>
+  <script>
+    let userlist = document.querySelector("#userlist > ul")
+    fetch("/api/v1/allusers")
+      .then(rows => rows.json())
+      .then(rows => {
+        console.log(rows)
+        rows.forEach((row) => {
+          let a = document.createElement("a")
+          a.setAttribute("href", `/userpage.html?username=${row.username}`)
+          a.innerText = "@" + row.username
+          let li = document.createElement("li")
+          li.appendChild(a)
+          userlist.appendChild(li)
+        })
+      })
+  </script>
+</body>
+
+</html>
