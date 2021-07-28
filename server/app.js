@@ -12,7 +12,7 @@ app.use(cookieparser())
 
 app.use(express.json())
 app.use(express.urlencoded())
-app.use("/", express.static("frontend"))
+app.use("/", express.static("frontend"), )
 
 app.post("/api/v1/login", (req, res) => {
   console.log(req.body.username)

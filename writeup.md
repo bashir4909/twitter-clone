@@ -29,7 +29,6 @@ For now I think I will need following endpoints:
 * `/retweet` : tweet id to retweet
 
 Implement these later
-
 * `/reply` : 
 * `/quote` :
 * `/login` : 
@@ -41,3 +40,11 @@ Implement these later
 > bit of motivation here. My main reason is to learn SQL, secondary reason is to make a tutorial on how to make a fucking EDIT  button.
 
 >What are the goals of the project?
+
+## Expectations
+
+### UX 
+
+This is the experience to have. Initial screen they see is `/home`, if they have already logged in, they will see latest tweets from users they follow. If not logged in
+
+At its core, I want to have a user session. Although I know it is not right way to do so, for now, I will just set a cookie and read from it. Moreover, I am not going to mingle with user authentication, frankly because I have no idea whatsoever, and wise man once said [do not try it if you do not have to](https://youtu.be/8ZtInClXe1Q).
