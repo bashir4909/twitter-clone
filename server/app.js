@@ -18,13 +18,13 @@ app.post("/api/v1/login", (req, res) => {
   console.log(req.body.username)
   username2userid(req.body.username, (userid) => {
     res.cookie("userid", userid, { httpOnly: false })
-    res.redirect("/home.html")
+    res.redirect("/home")
   })
 })
 
 app.post("/api/v1/logout", (req, res) => {
   res.clearCookie("userid")
-  res.redirect("/home.html")
+  res.redirect("/home")
 })
 
 app.post("/api/v1/newuser", (req, res) => {
@@ -38,7 +38,7 @@ app.post("/api/v1/newuser", (req, res) => {
   })
   username2userid(req.body.username, (userid) => {
     res.cookie("userid", userid)
-    res.redirect("/home.html")
+    res.redirect("/home")
   })
 })
 
@@ -115,7 +115,7 @@ app.post('/api/v1/newtweet', (req, res) => {
       if (err) {
         console.log(err)
       } else {
-        res.redirect("/home.html")
+        res.redirect("/home")
       }
     })
   }
