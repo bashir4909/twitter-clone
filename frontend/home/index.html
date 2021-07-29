@@ -10,28 +10,42 @@
 </head>
 
 <body>
-  <div class="columns">
-    <div class="column is-half is-offset-one-quarter">
-      <div id="new-tweet-form">
+  <div id="main-page">
+    <div class="columns">
+      <div class="column is-half is-offset-one-quarter">
+        <div class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <a href="../allusers" class="button">All users</a>
+            </div>
+            <div class="level-item">
+              <form action="/api/v1/logout" method="POST">
+                <input type="submit" name="logout" value="Logout" class="button">
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="columns">
+      <div class="column is-half is-offset-one-quarter">
+        <div id="new-tweet-form">
+        </div>
+      </div>
+    </div>
+
+    <div class="columns">
+      <div class="column is-half is-offset-one-quarter">
+        <div id="timeline">
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="columns">
+  <div id="login-form-container">
     <div class="column is-half is-offset-one-quarter">
-      <div id="timeline">
-      </div>
-    </div>
-  </div>
-
-  <form action="/api/v1/logout" method="POST">
-    <input type="submit" name="logout" value="Logout">
-  </form>
-  <a href="../allusers">All users</a>
-
-  <div class="modal" id="login-form-container">
-    <div class="modal-background columns"></div>
-    <div class="modal-content column is-one-quarter is-offset-one-quarter">
       <form action="/api/v1/login" method="post" id="login-form">
         <div class="field">
           <label for="username" class="label">Enter your username here</label>
@@ -63,7 +77,6 @@
 
     </div>
   </div>
-
   <script src="../factory.js"></script>
   <script src="script.js"></script>
 </body>

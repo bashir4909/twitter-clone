@@ -5,8 +5,9 @@ let timeline = document.querySelector("#timeline")
 let twList = document.querySelector("#timeline > dl")
 
 if (!readCookies()["userid"]) {
-  loginformcontainer.classList.add("is-active")
+  document.querySelector("#main-page").setAttribute("hidden", "")
 } else {
+  document.querySelector("#login-form-container").setAttribute("hidden", "")
   fetch(`http://localhost:3000/api/v1/timeline`)
     .then(rows => rows.json())
     .then(rows => {
