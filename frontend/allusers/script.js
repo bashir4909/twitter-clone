@@ -46,25 +46,24 @@ fetch("/api/v1/allusers")
   .then(rows => {
     rows.forEach((row) => {
 
-      let li = document.createElement("li")
-      li.classList.add("media")
+      let userview = mkUserView(row.username, row.fullname, row.bio)
 
-      let a = document.createElement("a")
-      a.setAttribute("href", `/user?username=${row.username}`)
-      a.innerText = "@" + row.username
-      a.classList.add("media-left")
-
-      li.appendChild(a)
-        // Next part works, but need a lot of refactoring
       if (readCookies()["userid"]) {
+        // find the proper place to insert follow button
+        // inside the element we just created
         if (row.isfollow) {
-          li.appendChild(mkButton('/api/v1/unfollow', row.username, "Unfollow"))
+          userview
+            .querySelector(".card-header")
+            .appendChild(mkButton('/api/v1/unfollow', row.username, "Unfollow"))
         } else {
-          li.appendChild(mkButton('/api/v1/follow', row.username, "Follow"))
+          userview
+            .querySelector(".card-header")
+            .appendChild(mkButton('/api/v1/follow', row.username, "Follow"))
         }
       }
 
-      userlist.appendChild(li)
+      document.querySelector("#userlist").appendChild(userview)
+
 
     })
   })

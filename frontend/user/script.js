@@ -7,16 +7,7 @@ function appendTw(twUsername, twContent) {
   twList.appendChild(dd)
 }
 
-function parseGetParams() {
-  let params = {}
-  document.location.href
-    .split("?")[1]
-    .split(";").forEach((pair) => {
-      kv = pair.split("=")
-      params[kv[0]] = kv[1]
-    })
-  return params
-}
+
 
 function readCookies() {
   let cookies = {}
@@ -28,15 +19,15 @@ function readCookies() {
 }
 
 let username = parseGetParams()["username"]
-let twList = document.querySelector("#tweets > dl")
 let fwButton = document.querySelector("#follow-button")
 
-fetch(`http://localhost:3000/api/v1/u/${username}`)
+fetch(`http://localhost:3000/api/v1/tw/${username}`)
   .then(rows => rows.json())
   .then(rows => {
     rows.forEach((row) => {
-      console.log(row)
-      appendTw(row.username, row.content)
+      document.querySelector("#tweets").appendChild(
+        mkTweetView(row.username, row.content)
+      )
     })
   })
 
@@ -59,3 +50,10 @@ fwButton.addEventListener("click", (evt) => {
       })
     })
 })
+
+fetch(`/api/v1/u/${username}`)
+  .then(row => row.json())
+  .then(row =>
+    document.querySelector("#user-view").appendChild(
+      mkUserView(row.username, row.fullname, row.bio)
+    ))

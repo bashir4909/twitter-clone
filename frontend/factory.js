@@ -5,8 +5,8 @@ function mkUserView(username, fullname, bio) {
     <div class="card-header">
       <div class="card-header-title">
         <p>${fullname}</p>
+        <small>{ @${username} }</small>
       </div>
-      <small>@${username}</small>
     </div>
     <div class="card-content">
       <p>${bio}</p>
@@ -66,6 +66,17 @@ function readCookies() {
     cookies[kv[0].trim()] = kv[1]
   })
   return cookies
+}
+
+function parseGetParams() {
+  let params = {}
+  document.location.href
+    .split("?")[1]
+    .split(";").forEach((pair) => {
+      kv = pair.split("=")
+      params[kv[0]] = kv[1]
+    })
+  return params
 }
 
 // document.querySelector(".columns > div").appendChild(
