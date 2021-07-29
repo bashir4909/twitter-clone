@@ -107,13 +107,14 @@ app.get("/api/v1/tw/:username", (req, res) => {
 
 app.get("/api/v1/timeline", (req, res) => {
 
-  // !TODO this part is utter shit, use proper authorization
+  // !TODO: this part is utter shit, use proper authorization
   let $userid = req.cookies.userid
   if (!$userid) {
     res.set(403)
     res.send("User not logged in")
   }
 
+  // !TODO:  retweets are ordered by tweetdate, order by retweet date
   db.all(`
     SELECT tweet.rowid, content, username, userid, fullname, tweetdate FROM tweet
     LEFT JOIN user ON tweet.userid=user.rowid
