@@ -1,17 +1,58 @@
-function mkUserView(username, fullname, bio) {
+function mkButton(posturl, username, btntext) {
+  let btn = document.createElement("button")
+  btn.addEventListener("click", (evt) => {
+    fetch(`/api/v1/uid/${username}`)
+      .then(row => row.json())
+      .then(row => row.rowid)
+      .then(followingid => {
+        console.log(followingid)
+        fetch(posturl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              "followingid": followingid,
+              "followerid": readCookies()["userid"]
+            })
+          })
+          .then((res) => {
+            window.location.reload()
+          })
+      })
+  })
+  btn.innerText = btntext
+  btn.classList.add("button")
+  btn.classList.add("is-small")
+  btn.classList.add("is-rounded")
+  btn.classList.add("media-right")
+  return btn
+}
+
+function mkUserView(userdata) {
   let card = document.createElement("div")
   card.classList.add("card")
   card.innerHTML = `
     <div class="card-header">
       <div class="card-header-title">
-        <p>${fullname}</p>
-        <small>{ @${username} }</small>
+        <p>${userdata.fullname}</p>
+        <small><a href=/user?username=${userdata.username}>{ @${userdata.username} }</a></small>
       </div>
     </div>
     <div class="card-content">
-      <p>${bio}</p>
+      <p>${userdata.bio}</p>
     </div>
     `
+  if (userdata.isfollow === 1) {
+    card
+      .querySelector(".card-header")
+      .appendChild(mkButton('/api/v1/unfollow', userdata.username, "Unfollow"))
+  } else if (userdata.isfollow === 0) {
+    card
+      .querySelector(".card-header")
+      .appendChild(mkButton('/api/v1/follow', userdata.username, "Follow"))
+
+  }
   return card
 }
 

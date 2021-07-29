@@ -65,14 +65,30 @@ app.get("/api/v1/uid/:username", (req, res) => {
 })
 
 app.get("/api/v1/u/:username", (req, res) => {
-  db.get(`
-  SELECT username, fullname, bio FROM user
+  if (req.cookies.userid) {
+    db.get(`
+  SELECT username, fullname, bio, 
+  CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS $userid) THEN 1 ELSE 0 END AS isfollow
+  FROM user
   WHERE username IS $username
   `, {
-    $username: req.params.username
-  }, (err, row) => {
-    res.json(row)
-  })
+      $username: req.params.username,
+      $userid: req.cookies.userid
+    }, (err, row) => {
+      console.log(row)
+      res.json(row)
+    })
+  } else {
+    db.get(`
+  SELECT username, fullname, bio, 
+  FROM user
+  WHERE username IS $username
+  `, {
+      $username: req.params.username
+    }, (err, row) => {
+      res.json(row)
+    })
+  }
 })
 
 app.get("/api/v1/tw/:username", (req, res) => {

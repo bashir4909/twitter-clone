@@ -45,25 +45,8 @@ fetch("/api/v1/allusers")
   .then(rows => rows.json())
   .then(rows => {
     rows.forEach((row) => {
-
-      let userview = mkUserView(row.username, row.fullname, row.bio)
-
-      if (readCookies()["userid"]) {
-        // find the proper place to insert follow button
-        // inside the element we just created
-        if (row.isfollow) {
-          userview
-            .querySelector(".card-header")
-            .appendChild(mkButton('/api/v1/unfollow', row.username, "Unfollow"))
-        } else {
-          userview
-            .querySelector(".card-header")
-            .appendChild(mkButton('/api/v1/follow', row.username, "Follow"))
-        }
-      }
-
-      document.querySelector("#userlist").appendChild(userview)
-
-
+      document.querySelector("#userlist").appendChild(
+        mkUserView(row)
+      )
     })
   })
