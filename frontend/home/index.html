@@ -10,16 +10,18 @@
 </head>
 
 <body>
-
-  <div class="container is-fluid">
-    <form action="/api/v1/newtweet" method="POST">
-      <input type="textarea" name="tweettext" id="" class="textarea">
-      <input type="submit" value="Tweet" class="button">
-    </form>
+  <div class="columns">
+    <div class="column is-half is-offset-one-quarter">
+      <div id="new-tweet-form">
+      </div>
+    </div>
   </div>
 
-  <div id="timeline" class="containter">
-    <dl></dl>
+  <div class="columns">
+    <div class="column is-half is-offset-one-quarter">
+      <div id="timeline">
+      </div>
+    </div>
   </div>
 
   <form action="/api/v1/logout" method="POST">
@@ -62,6 +64,7 @@
     </div>
   </div>
 
+  <script src="../factory.js"></script>
   <script src="script.js"></script>
 </body>
 
