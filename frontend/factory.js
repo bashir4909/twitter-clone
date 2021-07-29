@@ -31,7 +31,7 @@ function mkTweetView(username, tweetcontent) {
                 <p><a href="/user?username=${username}">@${username}:</a> ${tweetcontent}</p>
               </div>
               <div class="column is-narrow">
-                <button class="button">rt</button>
+                <button class="button rt-button">rt</button>
                 <button class="button">rp</button>
                 <button class="button">qt</button>
               </div>

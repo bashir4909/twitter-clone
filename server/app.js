@@ -99,13 +99,16 @@ app.get("/api/v1/timeline", (req, res) => {
   }
 
   db.all(`
-    SELECT content, username, userid, fullname,tweetdate FROM tweet
+    SELECT tweet.rowid, content, username, userid, fullname, tweetdate FROM tweet
     LEFT JOIN user ON tweet.userid=user.rowid
-    WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid) OR userid IS $userid
+    WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid) 
+    OR userid IS $userid
+    OR tweet.rowid IN (SELECT tweetid FROM retweet WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid))
     ORDER BY tweetdate DESC
   `, {
     $userid
   }, (err, rows) => {
+    console.log(rows)
     res.json(rows)
   })
 })
@@ -130,6 +133,19 @@ app.post('/api/v1/newtweet', (req, res) => {
       }
     })
   }
+})
+
+app.post('/api/v1/retweet', (req, res) => {
+  console.log(req.body)
+  db.run(`
+    INSERT INTO retweet (userid, tweetid, retweetdate)
+    VALUES ($userid, $tweetid, datetime('now') )
+  `, {
+    $userid: req.cookies.userid,
+    $tweetid: req.body.tweetid
+  }, (err) => {
+    res.send("success")
+  })
 })
 
 app.post("/api/v1/follow", (req, res) => {
