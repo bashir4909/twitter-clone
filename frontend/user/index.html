@@ -11,6 +11,27 @@
 
 <body>
   <div class="columns">
+    <div class="column is-half is-offset-one-quarter">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <a href="../home" class="button">Home</a>
+          </div>
+          <div class="level-item">
+            <a href="../allusers" class="button">All users</a>
+          </div>
+          <div class="level-item">
+            <form action="/api/v1/logout" method="POST">
+              <input type="submit" name="logout" value="Logout" class="button">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="columns">
     <div class="column is-half is-offset-one-quarter" id="user-view">
 
       <button id="follow-button">Follow</button>
