@@ -40,11 +40,22 @@ CREATE TABLE follow (
 )
 
 --@block
-SELECT content, username, fullname,tweetdate FROM tweet
-LEFT JOIN user ON tweet.userid=user.rowid
-WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3) OR userid IS 3
-ORDER BY tweetdate DESC
+CREATE TABLE retweet (
+    userid INTEGER NOT NULL,
+    tweetid INTEGER NOT NULL,
+    retweetdate TEXT NOT NULL,
+    FOREIGN KEY (userid) REFERENCES user(rowid),
+    FOREIGN KEY (tweetid) REFERENCES tweet(rowid),
+    UNIQUE (userid, tweetid)
+)
 
+--@block
+SELECT tweet.rowid, content, username, userid, fullname, tweetdate FROM tweet
+LEFT JOIN user ON tweet.userid=user.rowid
+WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3) 
+OR userid IS 3 
+OR tweet.rowid IN (SELECT tweetid FROM retweet WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3))
+ORDER BY tweetdate DESC
 --@block
 SELECT content, userid 
 FROM tweet
@@ -52,7 +63,7 @@ WHERE userid IS 1
 ORDER BY tweetdate DESC
 
 --@block
-SELECT rowid FROM user WHERE username IS 'test_user3';
+SELECT rowid FROM tweet WHERE userid IS '3';
 
 --@block
 SELECT rowid, * FROM user;
