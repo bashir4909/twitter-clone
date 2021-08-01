@@ -6,7 +6,7 @@ fetch(`http://localhost:3000/api/v1/tw/${username}`)
   .then(rows => {
     rows.forEach((row) => {
       document.querySelector("#tweets").appendChild(
-        mkTweetView(row.username, row.content)
+        mkTweetView(row)
       )
     })
   })

@@ -13,20 +13,20 @@ if (!readCookies()["userid"]) {
     .then(rows => {
       rows.forEach((row) => {
         // appendTw(row.username, row.content)
-        let twview = mkTweetView(row.username, row.content)
-        twview.querySelector(".rt-button")
-          .addEventListener('click', evt => {
-            fetch('/api/v1/retweet', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                userid: readCookies()['userid'],
-                tweetid: row.rowid
-              })
-            })
-          })
+        let twview = mkTweetView(row)
+          // twview.querySelector(".rt-button")
+          //   .addEventListener('click', evt => {
+          //     fetch('/api/v1/retweet', {
+          //       method: 'POST',
+          //       headers: {
+          //         'Content-Type': 'application/json'
+          //       },
+          //       body: JSON.stringify({
+          //         userid: readCookies()['userid'],
+          //         tweetid: row.rowid
+          //       })
+          //     })
+          //   })
         document.querySelector("#timeline").appendChild(twview)
       })
     })
