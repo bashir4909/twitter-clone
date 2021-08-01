@@ -57,6 +57,35 @@ OR userid IS 3
 OR tweet.rowid IN (SELECT tweetid FROM retweet WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3))
 ORDER BY tweetdate DESC
 --@block
+SELECT 
+    tw.rowid, 
+    tw.content,
+    user.username,
+    tw.userid, 
+    user.fullname,
+    rt.userid AS retweeter,
+    tw.tweetdate,
+    rt.retweetdate as odate
+FROM tweet AS tw
+INNER JOIN retweet AS rt ON rt.tweetid=tw.rowid
+LEFT JOIN user ON tw.userid=user.rowid
+WHERE rt.userid IN (SELECT followingid FROM follow wHERE followerid=3)
+UNION
+SELECT 
+    tw.rowid, 
+    tw.content,
+    user.username,
+    tw.userid, 
+    user.fullname,
+    NULL AS retweeter,
+    tw.tweetdate,
+    tw.tweetdate as odate
+FROM tweet as tw
+LEFT JOIN user ON tw.userid=user.rowid
+WHERE tw.userid IN (SELECT followingid FROM follow WHERE followerid=3)
+ORDER BY odate DESC
+
+--@block
 SELECT content, userid 
 FROM tweet
 WHERE userid IS 1

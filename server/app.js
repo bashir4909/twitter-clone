@@ -116,12 +116,35 @@ app.get("/api/v1/timeline", (req, res) => {
 
   // !TODO:  retweets are ordered by tweetdate, order by retweet date
   db.all(`
-    SELECT tweet.rowid, content, username, userid, fullname, tweetdate FROM tweet
-    LEFT JOIN user ON tweet.userid=user.rowid
-    WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid) 
-    OR userid IS $userid
-    OR tweet.rowid IN (SELECT tweetid FROM retweet WHERE userid IN (SELECT followingid FROM follow WHERE followerid=$userid))
-    ORDER BY tweetdate DESC
+SELECT 
+    tw.rowid, 
+    tw.content,
+    user.username,
+    tw.userid, 
+    user.fullname,
+    rt.userid AS retweeter,
+    tw.tweetdate,
+    rt.retweetdate as odate
+FROM tweet AS tw
+INNER JOIN retweet AS rt ON rt.tweetid=tw.rowid
+LEFT JOIN user ON tw.userid=user.rowid
+WHERE rt.userid IN (SELECT followingid FROM follow WHERE followerid=$userid)
+OR rt.userid IS $userid
+UNION
+SELECT 
+    tw.rowid, 
+    tw.content,
+    user.username,
+    tw.userid, 
+    user.fullname,
+    NULL AS retweeter,
+    tw.tweetdate,
+    tw.tweetdate as odate
+FROM tweet as tw
+LEFT JOIN user ON tw.userid=user.rowid
+WHERE tw.userid IN (SELECT followingid FROM follow WHERE followerid=$userid)
+OR tw.userid IS $userid
+ORDER BY odate DESC
   `, {
     $userid
   }, (err, rows) => {
