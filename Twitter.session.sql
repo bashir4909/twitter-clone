@@ -50,6 +50,15 @@ CREATE TABLE retweet (
 )
 
 --@block
+CREATE TABLE reply (
+    parent INTEGER,
+    child INTEGER,
+    FOREIGN KEY (parent) REFERENCES tweet(rowid),
+    FOREIGN KEY (child) REFERENCES tweet(rowid),
+    UNIQUE (child) -- a reply tweet can reply to only one tweet
+)
+
+--@block
 SELECT tweet.rowid, content, username, userid, fullname, tweetdate FROM tweet
 LEFT JOIN user ON tweet.userid=user.rowid
 WHERE userid IN (SELECT followingid FROM follow WHERE followerid=3) 
@@ -86,6 +95,7 @@ SELECT
 FROM tweet as tw
 LEFT JOIN user ON tw.userid=user.rowid
 WHERE tw.userid IN (SELECT followingid FROM follow WHERE followerid=3)
+AND tw.rowid NOT IN (SELECT child FROM reply) -- Do not show replies
 ORDER BY odate DESC
 
 --@block

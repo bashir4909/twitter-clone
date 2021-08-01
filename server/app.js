@@ -8,6 +8,7 @@ const sqlite = require('sqlite3').verbose()
 db = new sqlite.Database('mytwitter.db')
 
 const cookieparser = require('cookie-parser')
+const { response } = require('express')
 app.use(cookieparser())
 
 app.use(express.json())
@@ -15,10 +16,17 @@ app.use(express.urlencoded())
 app.use("/", express.static("frontend"), )
 
 app.post("/api/v1/login", (req, res) => {
-  console.log(req.body.username)
-  username2userid(req.body.username, (userid) => {
-    res.cookie("userid", userid, { httpOnly: false })
-    res.redirect("/home")
+  db.get(`
+  SELECT rowid FROM user WHERE username is $username
+  `, { $username: req.body.username }, (err, row) => {
+    if (err) {
+      console.log(err)
+    } else if (!row) {
+      res.redirect('back')
+    } else {
+      res.cookie("userid", row.rowid)
+      res.redirect('back')
+    }
   })
 })
 
@@ -44,13 +52,20 @@ app.post("/api/v1/newuser", (req, res) => {
 
 // Use following function to make queries using username
 // instead of userid
-function username2userid(username, callback) {
+function username2userid(username, callback, errorhandle) {
   db.get(`
   SELECT rowid FROM user WHERE username is $username
   `, {
     "$username": username
   }, (err, row) => {
-    callback(row.rowid)
+    if (err) {
+      console.log(err)
+      res.send("Error logging in try again")
+    } else if (!row) {
+      errorhandle()
+    } else {
+      console.log(row.length)
+    }
   })
 }
 
