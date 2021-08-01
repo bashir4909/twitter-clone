@@ -96,7 +96,7 @@ app.get("/api/v1/tw/:username", (req, res) => {
     console.log(userid)
       // Q: we do not really wanta username do we
     db.all(`
-    SELECT content,username FROM tweet
+    SELECT content,username,tweet.rowid FROM tweet
     LEFT JOIN user ON tweet.userid=user.rowid
     WHERE userid IS $userid
     `, { "$userid": userid }, (err, rows) => {
@@ -184,6 +184,7 @@ app.post('/api/v1/retweet', (req, res) => {
     $userid: req.cookies.userid,
     $tweetid: req.body.tweetid
   }, (err) => {
+    console.log(err)
     res.send("success")
   })
 })
