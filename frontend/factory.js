@@ -72,30 +72,61 @@ function mkTweetView(row) {
               <div class="column">
                 <p><a href="/user?username=${row.username}">@${row.username}:</a> ${row.content}</p>
               </div>
-              <div class="column is-narrow">
-                <button class="button rt-button">rt</button>
-                <button class="button">rp</button>
-                <button class="button">qt</button>
-              </div>
 
             </div>
           </div>
+          <nav class="level">
+            <div class="level-left">
+              <button class="level-item button rt-button">rt</button>
+              <button class="level-item button">rp</button>
+              <button class="level-item button">qt</button>
+            </div>
+            <div class="level-right">
+              <small class="level-item rt-info"></small>
+            </div>
+          </nav>
         </div>
+        </nav>
     `
-  media
-    .querySelector(".rt-button")
-    .addEventListener('click', evt => {
-      fetch('/api/v1/retweet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          userid: readCookies()['userid'],
-          tweetid: row.rowid
+
+  console.log(row.retweeterid)
+  if (row.retweeterid === Number(readCookies()["userid"])) {
+    media.querySelector(".rt-button").classList.add("is-light")
+    media.querySelector(".rt-button").classList.add("is-primary")
+    media
+      .querySelector(".rt-button")
+      .addEventListener('click', evt => {
+        fetch('/api/v1/undoretweet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userid: readCookies()['userid'],
+            tweetid: row.rowid
+          })
         })
       })
-    })
+  } else if (row.retweeter) {
+    media
+      .querySelector(".rt-info").innerText = `Retweet by ${row.retweeter}`
+  } else {
+    media
+      .querySelector(".rt-button")
+      .addEventListener('click', evt => {
+        fetch('/api/v1/retweet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userid: readCookies()['userid'],
+            tweetid: row.rowid
+          })
+        })
+      })
+  }
+
   return media
 }
 
@@ -108,7 +139,7 @@ function mkNewTweetForm() {
         <textarea name="tweettext" cols="35" rows="2" placeholder="Enter your tweet" class="textarea has-fixed-size"></textarea>
       </div>
       <div class="level-right">
-        <input type="submit" value="Tweet" class="button is-primary is-light is-rounded">
+        <input type="submit" value="Tweet" class="button is-success is-rounded">
       </div>
     </form>
   `

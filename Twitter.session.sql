@@ -63,12 +63,14 @@ SELECT
     user.username,
     tw.userid, 
     user.fullname,
-    rt.userid AS retweeter,
+    rtuser.username AS retweeter,
+    rtuser.rowid AS retweeterid,
     tw.tweetdate,
     rt.retweetdate as odate
 FROM tweet AS tw
 INNER JOIN retweet AS rt ON rt.tweetid=tw.rowid
 LEFT JOIN user ON tw.userid=user.rowid
+LEFT JOIN user AS rtuser ON rt.userid=rtuser.rowid
 WHERE rt.userid IN (SELECT followingid FROM follow wHERE followerid=3)
 UNION
 SELECT 
@@ -78,6 +80,7 @@ SELECT
     tw.userid, 
     user.fullname,
     NULL AS retweeter,
+    NULL AS retweeterid,
     tw.tweetdate,
     tw.tweetdate as odate
 FROM tweet as tw

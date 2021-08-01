@@ -122,12 +122,14 @@ SELECT
     user.username,
     tw.userid, 
     user.fullname,
-    rt.userid AS retweeter,
+    rtuser.username AS retweeter,
+    rtuser.rowid AS retweeterid,
     tw.tweetdate,
     rt.retweetdate as odate
 FROM tweet AS tw
 INNER JOIN retweet AS rt ON rt.tweetid=tw.rowid
 LEFT JOIN user ON tw.userid=user.rowid
+LEFT JOIN user AS rtuser ON rt.userid=rtuser.rowid
 WHERE rt.userid IN (SELECT followingid FROM follow WHERE followerid=$userid)
 OR rt.userid IS $userid
 UNION
@@ -138,6 +140,7 @@ SELECT
     tw.userid, 
     user.fullname,
     NULL AS retweeter,
+    NULL AS retweeterid,
     tw.tweetdate,
     tw.tweetdate as odate
 FROM tweet as tw
@@ -180,6 +183,20 @@ app.post('/api/v1/retweet', (req, res) => {
   db.run(`
     INSERT INTO retweet (userid, tweetid, retweetdate)
     VALUES ($userid, $tweetid, datetime('now') )
+  `, {
+    $userid: req.cookies.userid,
+    $tweetid: req.body.tweetid
+  }, (err) => {
+    console.log(err)
+    res.send("success")
+  })
+})
+app.post('/api/v1/undoretweet', (req, res) => {
+  console.log(req.body)
+  db.run(`
+  DELETE FROM retweet
+  WHERE userid IS $userid 
+  AND tweetid IS $tweetid
   `, {
     $userid: req.cookies.userid,
     $tweetid: req.body.tweetid
