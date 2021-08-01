@@ -56,8 +56,9 @@ function mkUserView(userdata) {
   return card
 }
 
-function mkTweetView(username, tweetcontent) {
+function mkTweetView(row) {
   let media = document.createElement("div")
+  console.log(row)
   media.classList.add("media")
   media.innerHTML = `
         <div class="media-left">
@@ -69,7 +70,7 @@ function mkTweetView(username, tweetcontent) {
           <div class="content">
             <div class="columns">
               <div class="column">
-                <p><a href="/user?username=${username}">@${username}:</a> ${tweetcontent}</p>
+                <p><a href="/user?username=${row.username}">@${row.username}:</a> ${row.content}</p>
               </div>
               <div class="column is-narrow">
                 <button class="button rt-button">rt</button>
@@ -81,6 +82,20 @@ function mkTweetView(username, tweetcontent) {
           </div>
         </div>
     `
+  media
+    .querySelector(".rt-button")
+    .addEventListener('click', evt => {
+      fetch('/api/v1/retweet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userid: readCookies()['userid'],
+          tweetid: row.rowid
+        })
+      })
+    })
   return media
 }
 
