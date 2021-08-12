@@ -106,6 +106,53 @@ app.get("/api/v1/u/:username", (req, res) => {
   }
 })
 
+app.get("/api/v1/following/:username", (req, res) => {
+  db.get(
+    `
+    SELECT rowid FROM user WHERE username IS $username
+    `, {
+      $username: req.params.username
+    }, (err, row) => {
+      console.log(`FIRST:${row.rowid}`)
+      db.all(`
+        SELECT
+          u.rowid,
+          u.username
+        FROM follow AS fw
+        JOIN user AS u ON fw.followingid=u.rowid
+        WHERE fw.followerid IS $uid
+        `, {
+        $uid: row.rowid
+      }, (err, rows) => {
+        res.json(rows)
+      })
+    }
+  )
+})
+
+app.get("/api/v1/followers/:username", (req, res) => {
+  db.get(
+    `
+    SELECT rowid FROM user WHERE username IS $username
+    `, {
+      $username: req.params.username
+    }, (err, row) => {
+      db.all(`
+        SELECT
+          u.rowid,
+          u.username
+        FROM follow AS fw
+        JOIN user AS u ON fw.followerid=u.rowid
+        WHERE fw.followingid IS $uid
+        `, {
+        $uid: row.rowid
+      }, (err, rows) => {
+        res.json(rows)
+      })
+    }
+  )
+})
+
 app.get("/api/v1/tw/:username", (req, res) => {
   username2userid(req.params.username, (userid) => {
     console.log(userid)
@@ -129,7 +176,6 @@ app.get("/api/v1/timeline", (req, res) => {
     res.send("User not logged in")
   }
 
-  // !TODO:  retweets are ordered by tweetdate, order by retweet date
   db.all(`
 SELECT 
     tw.rowid, 
