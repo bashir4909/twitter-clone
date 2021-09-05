@@ -169,7 +169,7 @@ app.get("/api/v1/tw/:username", (req, res) => {
 })
 
 app.get("/api/v1/u/:username/following", (req, res) => {
-  console.log(`==> REQUEST: followers for ${req.params.username}`)
+  console.log(`==> REQUEST: followings for ${req.params.username}`)
   db.all(`
 SELECT uu.username
 FROM follow fw
@@ -196,7 +196,46 @@ app.get("/api/v1/u/:username/follower", (req, res) => {
   })
 })
 
-// For user-specific timeline and other things
+// follow/unfollow
+app.delete("/api/v1/:username/unfollow", (req, res) => {
+  console.log(`==>REQUEST: unfollow ${req.params.username}`)
+  db.run(`
+  DELETE FROM follow
+  WHERE followerid IS $followerid
+  AND followingid IS (SELECT rowid FROM user WHERE username IS $followingname)
+  `, {
+    $followerid: req.session.userid,
+    $followingname: req.params.username
+  }, (err) => {
+    if (err) {
+      console.log(err);
+      res.send("FAIL")
+    } else {
+      res.send("OK")
+    }
+  })
+})
+
+app.post("/api/v1/:username/follow", (req, res) => {
+  console.log(`==>REQUEST: follow ${req.params.username}`)
+  db.run(`
+  INSERT INTO follow (followerid, followingid)
+  VALUES
+    ($followerid, (SELECT rowid FROM user WHERE username IS $followingname))
+  `, {
+    $followerid: req.session.userid,
+    $followingname: req.params.username
+  }, (err) => {
+    if (err) {
+      console.log(err);
+      res.send("FAIL")
+    } else {
+      res.send("OK")
+    }
+  })
+})
+
+// MISCALLENOUS
 app.get("/api/v1/timeline", (req, res) => {
   let $id = req.session.userid
   console.log(`==> REQUEST: timeline for userid: ${$id}`)
