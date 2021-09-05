@@ -29,6 +29,8 @@
           <p class="userbio"></p>
         </div>
         <button class="isfollow"></button>
+        <a href="" class="userfollower">Followers</a>
+        <a href="" class="userfollowing">Following</a>
       </div>
     </div>
 
@@ -38,10 +40,28 @@
         <p><i></i> : <span></span></p>
       </div>
     </div>
+
+    <div id="fw-list">
+      <ul>
+        <li>
+          <a href=""></a>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <script>
-    let username = window.location.toString().split("/").pop()
+    let addr = window.location.toString().split("/")
+
+    let kw = addr.pop()
+    let username = ""
+
+    if (kw === "following" || kw == "follower") {
+      username = addr.pop()
+    } else {
+      username = kw
+      kw = ""
+    }
     document.title = username
       //
     fetch(`/api/v1/u/${username}`)
@@ -52,23 +72,60 @@
         ub.querySelector(".fullname").innerText = row.fullname
         ub.querySelector(".userbio").innerText = row.bio
         ub.querySelector(".isfollow").innerText = row.isfollow === 1 ? "Following" : "Follow"
-        console.log(row.isfollow)
+        let followerEl = ub.querySelector(".userfollower")
+        followerEl.setAttribute("href", `/u/${username}/follower`)
+        followerEl.innerText = row.followercount + " Followers"
+        followingEl = ub.querySelector(".userfollowing")
+        followingEl.setAttribute("href", `/u/${username}/following`)
+        followingEl.innerText = row.followingcount + " Following"
+        console.log(row)
       })
-      //
-    fetch(`/api/v1/tw/${username}`)
-      .then(rows => rows.json())
-      .then(rows => {
-        let twTemplate = document.querySelector("#tweet-template")
-        let twContainer = document.querySelector("#user-tweets")
-        rows.forEach(row => {
-          tw = twTemplate.cloneNode(true)
-          tw.id = ""
-          tw.querySelector("i").innerText = "@" + row.username
-          tw.querySelector("span").innerText = row.content
-          twContainer.appendChild(tw)
+    if (kw === "follower") {
+      fetch(`/api/v1/u/${username}/follower`)
+        .then(rows => rows.json())
+        .then(rows => {
+          let fwlist = document.querySelector("#fw-list>ul")
+          let fwli = fwlist.querySelector("li")
+          fwlist.innerHTML = ""
+          rows.forEach(row => {
+            let li = fwli.cloneNode(true)
+            a = li.querySelector("a")
+            a.innerText = row.username
+            a.setAttribute("href", `/u/${row.username}`)
+            fwlist.appendChild(li)
+          })
         })
-      })
-      //
+    } else if (kw === "following") {
+      fetch(`/api/v1/u/${username}/following`)
+        .then(rows => rows.json())
+        .then(rows => {
+          let fwlist = document.querySelector("#fw-list>ul")
+          let fwli = fwlist.querySelector("li")
+          fwlist.innerHTML = ""
+          rows.forEach(row => {
+            let li = fwli.cloneNode(true)
+            a = li.querySelector("a")
+            a.innerText = row.username
+            a.setAttribute("href", `/u/${row.username}`)
+            fwlist.appendChild(li)
+          })
+        })
+    } else {
+      fetch(`/api/v1/tw/${username}`)
+        .then(rows => rows.json())
+        .then(rows => {
+          let twTemplate = document.querySelector("#tweet-template")
+          let twContainer = document.querySelector("#user-tweets")
+          rows.forEach(row => {
+            tw = twTemplate.cloneNode(true)
+            tw.id = ""
+            tw.querySelector("i").innerText = "@" + row.username
+            tw.querySelector("span").innerText = row.content
+            twContainer.appendChild(tw)
+          })
+        })
+    }
+    //
   </script>
 </body>
 

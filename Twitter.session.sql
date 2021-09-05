@@ -114,7 +114,7 @@ SELECT rowid, * FROM user;
 SELECT datetime('now')
 
 --@block
-SELECT rowid FROM user WHERE username IS 'test_user1'
+SELECT rowid,* FROM user
 
 --@block
 SELECT 
@@ -122,3 +122,43 @@ SELECT
     username,
     CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid=7) THEN 1 ELSE 0 END AS isfollow
 FROM user
+
+--@block
+SELECT 
+  *, 
+  CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS 5) THEN 1 ELSE 0 END AS isfollow,
+  (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followerid=u.rowid WHERE u.username IS 'rick')
+FROM user 
+WHERE username IS "rick"
+
+--@block
+    SELECT 
+      *, 
+      CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS 5) THEN 1 ELSE 0 END AS isfollow,
+      (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followerid=u.rowid WHERE u.username IS 'rick') AS followingcount,
+      (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followingid=u.rowid WHERE u.username IS 'rick') AS followercount
+    FROM user 
+    WHERE username IS 'rick'
+
+--@block
+    SELECT 
+      *, 
+      CASE WHEN u.rowid IN (SELECT followingid FROM follow WHERE followerid IS 5) THEN 1 ELSE 0 END AS isfollow,
+      COUNT(fw.rowid),
+      COUNT(fww.rowid)
+    FROM user AS u
+    LEFT JOIN follow as fw ON fw.followerid=u.rowid
+    LEFT JOIN follow as fww ON fww.followingid=u.rowid
+    WHERE u.username is 'rick'
+--@block
+SELECT uu.username
+FROM follow fw
+LEFT JOIN user AS u ON fw.followingid=u.rowid
+LEFT JOIN user AS uu ON fw.followerid=uu.rowid
+WHERE u.username IS 'rick'
+--@block
+SELECT uu.username
+FROM follow fw
+LEFT JOIN user AS u ON fw.followerid=u.rowid
+LEFT JOIN user AS uu ON fw.followingid=uu.rowid
+WHERE u.username IS 'rick'

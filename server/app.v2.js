@@ -28,6 +28,8 @@ app.use("/home", express.static("frontendv2/home.html"), )
 app.use("/signup", express.static("frontendv2/signup.html"), )
 app.use("/explore", express.static("frontendv2/explore.html"), )
 app.use("/u/:username", express.static("frontendv2/user.html"))
+app.use("/u/:username/follower", express.static("frontendv2/user.html"))
+app.use("/u/:username/following", express.static("frontendv2/user.html"))
 app.use("/login", express.static("frontendv2/login.html"))
 app.use("/common.css", express.static("frontendv2/common.css"))
 
@@ -125,7 +127,9 @@ app.get("/api/v1/u/:username", (req, res) => {
     query = `
     SELECT 
       *, 
-      CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS $viewerid) THEN 1 ELSE 0 END AS isfollow
+      CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS $viewerid) THEN 1 ELSE 0 END AS isfollow,
+      (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followerid=u.rowid WHERE u.username IS $username) AS followercount,
+      (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followingid=u.rowid WHERE u.username IS $username) AS followingcount
     FROM user 
     WHERE username IS $username
     `
@@ -161,6 +165,34 @@ app.get("/api/v1/tw/:username", (req, res) => {
     } else {
       res.send(`user ${$username} not found`)
     }
+  })
+})
+
+app.get("/api/v1/u/:username/following", (req, res) => {
+  console.log(`==> REQUEST: followers for ${req.params.username}`)
+  db.all(`
+SELECT uu.username
+FROM follow fw
+LEFT JOIN user AS u ON fw.followingid=u.rowid
+LEFT JOIN user AS uu ON fw.followerid=uu.rowid
+WHERE u.username IS $username
+  `, { $username: req.params.username }, (err, rows) => {
+    if (err) { console.log(err) }
+    if (rows) { res.json(rows) } else { res.json([]) }
+  })
+})
+
+app.get("/api/v1/u/:username/follower", (req, res) => {
+  console.log(`==> REQUEST: followers for ${req.params.username}`)
+  db.all(`
+  SELECT uu.username
+  FROM follow fw
+  LEFT JOIN user AS u ON fw.followerid=u.rowid
+  LEFT JOIN user AS uu ON fw.followingid=uu.rowid
+  WHERE u.username IS $username
+    `, { $username: req.params.username }, (err, rows) => {
+    if (err) { console.log(err) }
+    if (rows) { res.json(rows) } else { res.json([]) }
   })
 })
 
