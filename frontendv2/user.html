@@ -78,7 +78,6 @@
         followingEl = ub.querySelector(".userfollowing")
         followingEl.setAttribute("href", `/u/${username}/following`)
         followingEl.innerText = row.followingcount + " Following"
-        console.log(row)
       })
     if (kw === "follower") {
       fetch(`/api/v1/u/${username}/follower`)
