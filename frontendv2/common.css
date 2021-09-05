@@ -1,0 +1,61 @@
+.page-container {
+  width: 80%;
+  max-width: 600px;
+  margin: auto;
+  border: solid green;
+}
+
+.navbar-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.navbar-container>a {
+  border: solid red;
+  border-radius: 25%;
+}
+
+.user-profile-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 25%;
+}
+
+#user-banner {
+  display: flex;
+  flex-direction: row;
+  border: solid black;
+}
+
+#user-banner .username {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#user-banner .fullname {
+  font-family: cursive;
+  font-size: 24px;
+}
+
+#user-banner>.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+#user-banner>.user-info p {
+  display: inline;
+  border: solid green;
+}
+
+#tweet-template {
+  display: none;
+}
+
+.tweet-view {
+  border: solid pink;
+  vertical-align: top;
+}
+
+.tweet-view>* {
+  display: inline;
+}

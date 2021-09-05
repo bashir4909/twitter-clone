@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/common.css">
+  <title>Home</title>
+</head>
+
+
+
+<body>
+  <div class="page-container">
+    <div class="navbar-container">
+      <a href="/home">HOME</a>
+      <a href="/explore">EXPLORE</a>
+      <a href="/u">PROFILE</a>
+      <form action="/api/v1/logout" method="post">
+        <input type="submit" value="Logout">
+      </form>
+    </div>
+
+    <div id="user-tweets">
+      <div class="tweet-view" id="tweet-template">
+        <img src="https://is2-ssl.mzstatic.com/image/thumb/Purple115/v4/26/bc/b8/26bcb8f6-43c0-f111-c69d-961b3670a34d/source/256x256bb.jpg" alt="" class="user-profile-photo">
+        <p><i></i> : <span></span></p>
+      </div>
+    </div>
+  </div>
+
+
+  </div>
+  <script>
+    (function() {
+      fetch('api/v1/islogged')
+        .then(row => row.json())
+        .then(row => {
+          if (!row.login) {
+            let addr = window.location.href.split("/")
+            addr.pop()
+            window.location.href = addr.join("/")
+          }
+        })
+    })()
+    fetch(`/api/v1/timeline`)
+      .then(rows => rows.json())
+      .then(rows => {
+        let twTemplate = document.querySelector("#tweet-template")
+        let twContainer = document.querySelector("#user-tweets")
+        rows.forEach(row => {
+          tw = twTemplate.cloneNode(true)
+          tw.id = ""
+          tw.querySelector("i").innerText = "@" + row.username
+          tw.querySelector("span").innerText = row.content
+          twContainer.appendChild(tw)
+        })
+      })
+  </script>
+</body>
+
+</html>
