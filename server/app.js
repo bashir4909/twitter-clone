@@ -1,182 +1,282 @@
 const express = require('express')
 const app = express()
 
+const cookieSession = require('cookie-session')
+app.use(cookieSession({
+  name: 'user-session',
+  secret: 'yo-mama'
+}))
+
 const cors = require('cors')
 app.use(cors())
 
 const sqlite = require('sqlite3').verbose()
 db = new sqlite.Database('mytwitter.db')
 
-const cookieparser = require('cookie-parser')
-const { response } = require('express')
-app.use(cookieparser())
+// const cookieparser = require('cookie-parser')
+// app.use(cookieparser(
+// 
+// ))
 
 app.use(express.json())
 app.use(express.urlencoded())
-app.use("/", express.static("frontend"), )
 
-app.post("/api/v1/login", (req, res) => {
+// ===> Website logic <=== //
+
+// STATIC pages to serve
+app.use("/home", express.static("frontendv2/home.html"), )
+app.use("/signup", express.static("frontendv2/signup.html"), )
+app.use("/explore", express.static("frontendv2/explore.html"), )
+app.use("/u/:username", express.static("frontendv2/user.html"))
+app.use("/u/:username/follower", express.static("frontendv2/user.html"))
+app.use("/u/:username/following", express.static("frontendv2/user.html"))
+app.use("/login", express.static("frontendv2/login.html"))
+app.use("/common.css", express.static("frontendv2/common.css"))
+
+app.get("/u", (req, res) => {
+  $id = req.session.userid
+  db.get("SELECT username FROM user WHERE rowid IS $id", { $id }, (err, row) => {
+    if (err) { console.log(err) }
+    if (row) { res.redirect("/u" + "/" + row.username) } else { res.redirect("/") }
+  })
+})
+
+// app.use("/login", (req, res, next) => {
+// if (req.session) {
+// res.redirect("/")
+// next()
+// } else {
+// express.static("frontendv2/login.html")
+// }
+// })
+
+// app.use("/login", express.static("frontendv2/login.html"), ) // What if user goes to /login directly? need to handle that somehow, ideally redireact to "/"
+
+// AUX
+
+function isLoggedIn($id, cb_true, cb_false) {
   db.get(`
-  SELECT rowid FROM user WHERE username is $username
-  `, { $username: req.body.username }, (err, row) => {
-    if (err) {
-      console.log(err)
-    } else if (!row) {
-      res.redirect('back')
+  SELECT * FROM user WHERE rowid IS $id
+  `, { $id }, (err, row) => {
+    if (err) { console.log(err) }
+    if (row) {
+      cb_true()
     } else {
-      res.cookie("userid", row.rowid)
-      res.redirect('back')
-    }
-  })
-})
-
-app.post("/api/v1/logout", (req, res) => {
-  res.clearCookie("userid")
-  res.redirect("/home")
-})
-
-app.post("/api/v1/newuser", (req, res) => {
-  db.run(`
-  INSERT INTO user (username, fullname, bio)
-  VALUES ($username, $fullname, $bio)
-  `, {
-    $username: req.body.username,
-    $fullname: req.body.fullname,
-    $bio: req.body.bio
-  })
-  username2userid(req.body.username, (userid) => {
-    res.cookie("userid", userid)
-    res.redirect("/home")
-  })
-})
-
-// Use following function to make queries using username
-// instead of userid
-function username2userid(username, callback, errorhandle) {
-  db.get(`
-  SELECT rowid FROM user WHERE username is $username
-  `, {
-    "$username": username
-  }, (err, row) => {
-    if (err) {
-      console.log(err)
-      res.send("Error logging in try again")
-    } else if (!row) {
-      errorhandle()
-    } else {
-      console.log(row.length)
+      cb_false()
     }
   })
 }
 
-app.get("/api/v1/uid/:username", (req, res) => {
-  $username = req.params.username
-  db.get(`
-  SELECT rowid FROM user WHERE username IS $username
-  `, { $username }, (err, row) => {
-    console.log(row)
-    res.json(row)
-  })
-})
-
-app.get("/api/v1/u/:username", (req, res) => {
-  if (req.cookies.userid) {
-    db.get(`
-  SELECT username, fullname, bio, 
-  CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS $userid) THEN 1 ELSE 0 END AS isfollow
-  FROM user
-  WHERE username IS $username
-  `, {
-      $username: req.params.username,
-      $userid: req.cookies.userid
-    }, (err, row) => {
-      console.log(row)
-      res.json(row)
-    })
+//ROOT ENTRY
+app.use("/$", (req, res) => {
+  if (!req.session) {
+    res.redirect("/login")
   } else {
-    db.get(`
-  SELECT username, fullname, bio, 
-  FROM user
-  WHERE username IS $username
-  `, {
-      $username: req.params.username
-    }, (err, row) => {
-      res.json(row)
-    })
+    isLoggedIn(req.session.userid, () => res.redirect('/home'), () => { res.redirect('/login') })
+      //   db.get(`
+      // SELECT * FROM user WHERE rowid IS $id
+      // `, { $id: req.session.userid }, (err, row) => {
+      //     if (err) { console.log(err) }
+      //     if (row) {
+      //       res.redirect("/home")
+      //     } else {
+      //       res.redirect("/login")
+      //     }
+      //   })
   }
 })
 
-app.get("/api/v1/following/:username", (req, res) => {
-  db.get(
-    `
-    SELECT rowid FROM user WHERE username IS $username
-    `, {
-      $username: req.params.username
-    }, (err, row) => {
-      console.log(`FIRST:${row.rowid}`)
-      db.all(`
-        SELECT
-          u.rowid,
-          u.username
-        FROM follow AS fw
-        JOIN user AS u ON fw.followingid=u.rowid
-        WHERE fw.followerid IS $uid
-        `, {
-        $uid: row.rowid
-      }, (err, rows) => {
-        res.json(rows)
-      })
-    }
-  )
+// userpage
+
+// ===> API endpoints <=== //
+
+// user session handling LOGIN/LOGOUT/SIGNUP
+
+app.post("/api/v1/login", (req, res) => {
+  console.log("===> REQUEST: LOGIN")
+  $username = req.body.username
+  let query = "SELECT rowid FROM user WHERE username IS $username"
+  db.get(query, { $username }, (err, row) => {
+    if (err) { console.log(err) }
+    if (row) { req.session.userid = row.rowid }
+    res.redirect("/")
+  })
 })
 
-app.get("/api/v1/followers/:username", (req, res) => {
-  db.get(
+
+
+app.post("/api/v1/logout", (req, res) => {
+  console.log("==> REQUEST: LOGOUT")
+  req.session = null
+  res.redirect("/")
+})
+
+app.get("/api/v1/islogged", (req, res) => {
+  let sessdata = req.session.userid
+  isLoggedIn(req.session.userid, () => res.json({ "login": true }), () => res.json({ "login": false }))
+})
+
+// For viewing user page
+app.get("/api/v1/u/:username", (req, res) => {
+  let $username = req.params.username
+  var query
+  var $viewerid
+    // Decrease the no of lines
+  if (req.session) {
+    $viewerid = req.session.userid
+    query = `
+    SELECT 
+      *, 
+      CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid IS $viewerid) THEN 1 ELSE 0 END AS isfollow,
+      (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followerid=u.rowid WHERE u.username IS $username) AS followercount,
+      (SELECT COUNT(fw.rowid) FROM follow AS fw LEFT JOIN user AS u ON fw.followingid=u.rowid WHERE u.username IS $username) AS followingcount
+    FROM user 
+    WHERE username IS $username
     `
-    SELECT rowid FROM user WHERE username IS $username
-    `, {
-      $username: req.params.username
-    }, (err, row) => {
-      db.all(`
-        SELECT
-          u.rowid,
-          u.username
-        FROM follow AS fw
-        JOIN user AS u ON fw.followerid=u.rowid
-        WHERE fw.followingid IS $uid
-        `, {
-        $uid: row.rowid
-      }, (err, rows) => {
-        res.json(rows)
-      })
-    }
-  )
+    db.get(query, { $username, $viewerid }, (err, row) => {
+      if (err) { console.log(err) }
+      if (row) {
+        res.json(row)
+      } else {
+        res.send(`user ${$username} not found`)
+      }
+    })
+  } else {
+    query = "SELECT * FROM user WHERE username IS $username"
+    db.get(query, { $username }, (err, row) => {
+      if (err) { console.log(err) }
+      if (row) {
+        res.json(row)
+      } else {
+        res.send(`user ${$username} not found`)
+      }
+    })
+  }
+
 })
 
 app.get("/api/v1/tw/:username", (req, res) => {
-  username2userid(req.params.username, (userid) => {
-    console.log(userid)
-      // Q: we do not really wanta username do we
-    db.all(`
-    SELECT content,username,tweet.rowid FROM tweet
-    LEFT JOIN user ON tweet.userid=user.rowid
-    WHERE userid IS $userid
-    `, { "$userid": userid }, (err, rows) => {
+  let query = "SELECT * FROM tweet AS tw LEFT JOIN user ON user.rowid=tw.userid WHERE username IS $username"
+  let $username = req.params.username
+  db.all(query, { $username }, (err, rows) => {
+    if (err) { console.log(err) }
+    if (rows) {
       res.json(rows)
-    })
+    } else {
+      res.send(`user ${$username} not found`)
+    }
   })
 })
 
-app.get("/api/v1/timeline", (req, res) => {
-
-  // !TODO: this part is utter shit, use proper authorization
-  let $userid = req.cookies.userid
-  if (!$userid) {
-    res.set(403)
-    res.send("User not logged in")
-  }
-
+app.get("/api/v1/u/:username/following", (req, res) => {
+  console.log(`==> REQUEST: followings for ${req.params.username}`)
   db.all(`
+SELECT uu.username
+FROM follow fw
+LEFT JOIN user AS u ON fw.followingid=u.rowid
+LEFT JOIN user AS uu ON fw.followerid=uu.rowid
+WHERE u.username IS $username
+  `, { $username: req.params.username }, (err, rows) => {
+    if (err) { console.log(err) }
+    if (rows) { res.json(rows) } else { res.json([]) }
+  })
+})
+
+app.get("/api/v1/u/:username/follower", (req, res) => {
+  console.log(`==> REQUEST: followers for ${req.params.username}`)
+  db.all(`
+  SELECT uu.username
+  FROM follow fw
+  LEFT JOIN user AS u ON fw.followerid=u.rowid
+  LEFT JOIN user AS uu ON fw.followingid=uu.rowid
+  WHERE u.username IS $username
+    `, { $username: req.params.username }, (err, rows) => {
+    if (err) { console.log(err) }
+    if (rows) { res.json(rows) } else { res.json([]) }
+  })
+})
+
+// follow/unfollow
+app.delete("/api/v1/:username/unfollow", (req, res) => {
+  console.log(`==>REQUEST: unfollow ${req.params.username}`)
+  db.run(`
+  DELETE FROM follow
+  WHERE followerid IS $followerid
+  AND followingid IS (SELECT rowid FROM user WHERE username IS $followingname)
+  `, {
+    $followerid: req.session.userid,
+    $followingname: req.params.username
+  }, (err) => {
+    if (err) {
+      console.log(err);
+      res.send("FAIL")
+    } else {
+      res.send("OK")
+    }
+  })
+})
+
+app.post("/api/v1/:username/follow", (req, res) => {
+  console.log(`==>REQUEST: follow ${req.params.username}`)
+  db.run(`
+  INSERT INTO follow (followerid, followingid)
+  VALUES
+    ($followerid, (SELECT rowid FROM user WHERE username IS $followingname))
+  `, {
+    $followerid: req.session.userid,
+    $followingname: req.params.username
+  }, (err) => {
+    if (err) {
+      console.log(err);
+      res.send("FAIL")
+    } else {
+      res.send("OK")
+    }
+  })
+})
+
+// tweet / retweet
+app.post("/api/v1/newtweet", (req, res) => {
+  let $id = req.session.userid
+  let $twtText = req.body.content
+  db.run(`
+  INSERT INTO tweet (content, userid, tweetdate)
+  VALUES ($twtText, $id, datetime('now'))
+  `, { $id, $twtText }, (err) => {
+    if (err) { console.log(err) }
+    res.redirect("back")
+  })
+})
+
+app.post("/api/v1/retweet", (req, res) => {
+  $id = req.session.userid
+  $tweetid = req.body.tweetid
+  db.run(`
+  INSERT INTO retweet (userid, tweetid, retweetdate)
+  VALUES ($id, $tweetid, datetime('now'))
+  `, { $id, $tweetid }, (err) => {
+    if (err) { console.log(err) }
+    res.redirect('back')
+  })
+})
+app.post("/api/v1/undoretweet", (req, res) => {
+    $id = req.session.userid
+    $tweetid = req.body.tweetid
+    db.run(`
+  DELETE FROM retweet 
+  WHERE userid IS $id
+  AND tweetid IS $tweetid
+  `, { $id, $tweetid }, (err) => {
+      if (err) { console.log(err) }
+      res.redirect('back')
+    })
+  })
+  // MISCALLENOUS
+app.get("/api/v1/timeline", (req, res) => {
+  let $id = req.session.userid
+  console.log(`==> REQUEST: timeline for userid: ${$id}`)
+  isLoggedIn($id, () => {
+    db.all(`
 SELECT 
     tw.rowid, 
     tw.content,
@@ -191,8 +291,8 @@ FROM tweet AS tw
 INNER JOIN retweet AS rt ON rt.tweetid=tw.rowid
 LEFT JOIN user ON tw.userid=user.rowid
 LEFT JOIN user AS rtuser ON rt.userid=rtuser.rowid
-WHERE rt.userid IN (SELECT followingid FROM follow WHERE followerid=$userid)
-OR rt.userid IS $userid
+WHERE rt.userid IN (SELECT followingid FROM follow WHERE followerid=$id)
+OR rt.userid IS $id
 UNION
 SELECT 
     tw.rowid, 
@@ -206,125 +306,40 @@ SELECT
     tw.tweetdate as odate
 FROM tweet as tw
 LEFT JOIN user ON tw.userid=user.rowid
-WHERE tw.userid IN (SELECT followingid FROM follow WHERE followerid=$userid)
-OR tw.userid IS $userid
+WHERE tw.userid IN (SELECT followingid FROM follow WHERE followerid=$id)
+OR tw.userid IS $id
 ORDER BY odate DESC
   `, {
-    $userid
-  }, (err, rows) => {
-    console.log(rows)
+      $id
+    }, (err, rows) => {
+      // console.log(rows)
+      res.json(rows)
+    })
+  }, () => res.json([]))
+})
+
+app.get("/api/v1/suggest", (req, res) => {
+  $id = req.session.userid
+  db.all(`
+  SELECT username
+  FROM user
+  WHERE rowid NOT IN (SELECT followingid FROM follow WHERE followerid IS $id) 
+  `, { $id }, (err, rows) => {
+    if (err) { console.log(err) }
     res.json(rows)
   })
 })
 
-app.post('/api/v1/newtweet', (req, res) => {
-  let $userid = req.cookies.userid
-  let $tweettext = req.body.tweettext
-  if ((!$userid) | (!$tweettext)) {
-    res.send("Wrong request format")
-  } else {
-    db.run(`
-      INSERT INTO tweet (content, userid, tweetdate)
-      VALUES ( $tweettext, $userid, datetime('now') )
-      `, {
-      $tweettext,
-      $userid
-    }, (err) => {
-      if (err) {
-        console.log(err)
-      } else {
-        res.redirect("/home")
-      }
-    })
-  }
-})
-
-app.post('/api/v1/retweet', (req, res) => {
-  console.log(req.body)
-  db.run(`
-    INSERT INTO retweet (userid, tweetid, retweetdate)
-    VALUES ($userid, $tweetid, datetime('now') )
-  `, {
-    $userid: req.cookies.userid,
-    $tweetid: req.body.tweetid
-  }, (err) => {
-    console.log(err)
-    res.send("success")
-  })
-})
-app.post('/api/v1/undoretweet', (req, res) => {
-  console.log(req.body)
-  db.run(`
-  DELETE FROM retweet
-  WHERE userid IS $userid 
-  AND tweetid IS $tweetid
-  `, {
-    $userid: req.cookies.userid,
-    $tweetid: req.body.tweetid
-  }, (err) => {
-    console.log(err)
-    res.send("success")
-  })
-})
-
-app.post("/api/v1/follow", (req, res) => {
-  let $followerid = Number(req.body.followerid)
-  let $followingid = Number(req.body.followingid)
-  let queryparams = {
-    $followingid,
-    $followerid
-  }
-  console.log(queryparams)
-  db.run(`
-    INSERT INTO follow (followerid, followingid)
-    VALUES ($followerid, $followingid)
-    `, queryparams, (err) => {
+app.get("/api/v1/whoami", (req, res) => {
+  $id = req.session.userid
+  db.get(`
+  SELECT username
+  FROM user
+  WHERE rowid IS $id
+  `, { $id }, (err, row) => {
     if (err) { console.log(err) }
-
-    res.send("Success")
+    res.json(row)
   })
 })
-
-app.post("/api/v1/unfollow", (req, res) => {
-  let $followerid = Number(req.body.followerid)
-  let $followingid = Number(req.body.followingid)
-  let queryparams = {
-    $followingid,
-    $followerid
-  }
-  console.log(queryparams)
-  db.run(`
-    DELETE FROM follow 
-    WHERE followerid IS $followerid AND followingid IS $followingid
-    `, queryparams, (err) => {
-    if (err) { console.log(err) }
-
-    res.send("Success")
-  })
-})
-
-app.get("/api/v1/allusers", (req, res) => {
-  if (req.cookies.userid) {
-    let $userid = req.cookies.userid
-    db.all(`
-      SELECT 
-          rowid,  
-          username,
-          fullname,
-          bio,
-          CASE WHEN rowid IN (SELECT followingid FROM follow WHERE followerid=$userid) THEN 1 ELSE 0 END AS isfollow
-      FROM user
-    `, { $userid }, (err, rows) => {
-      res.json(rows)
-    })
-  } else {
-    db.all(`
-    SELECT username  FROM user
-  `, (err, rows) => {
-      res.json(rows)
-    })
-  }
-})
-
 
 app.listen(3000)
