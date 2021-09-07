@@ -24,14 +24,14 @@ app.use(express.urlencoded())
 // ===> Website logic <=== //
 
 // STATIC pages to serve
-app.use("/home", express.static("frontendv2/home.html"), )
-app.use("/signup", express.static("frontendv2/signup.html"), )
-app.use("/explore", express.static("frontendv2/explore.html"), )
-app.use("/u/:username", express.static("frontendv2/user.html"))
-app.use("/u/:username/follower", express.static("frontendv2/user.html"))
-app.use("/u/:username/following", express.static("frontendv2/user.html"))
-app.use("/login", express.static("frontendv2/login.html"))
-app.use("/common.css", express.static("frontendv2/common.css"))
+app.use("/home", express.static("frontend/home.html"), )
+app.use("/signup", express.static("frontend/signup.html"), )
+app.use("/explore", express.static("frontend/explore.html"), )
+app.use("/u/:username", express.static("frontend/user.html"))
+app.use("/u/:username/follower", express.static("frontend/user.html"))
+app.use("/u/:username/following", express.static("frontend/user.html"))
+app.use("/login", express.static("frontend/login.html"))
+app.use("/common.css", express.static("frontend/common.css"))
 
 app.get("/u", (req, res) => {
   $id = req.session.userid
