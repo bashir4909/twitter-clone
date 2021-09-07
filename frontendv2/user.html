@@ -113,6 +113,7 @@
         .then(rows => {
           let fwlist = document.querySelector("#fw-list>ul")
           let fwli = fwlist.querySelector("li")
+          fwli.remove()
           fwlist.innerHTML = ""
           rows.forEach(row => {
             let li = fwli.cloneNode(true)
@@ -128,7 +129,7 @@
         .then(rows => {
           let fwlist = document.querySelector("#fw-list>ul")
           let fwli = fwlist.querySelector("li")
-          fwlist.innerHTML = ""
+          fwli.remove()
           rows.forEach(row => {
             let li = fwli.cloneNode(true)
             a = li.querySelector("a")
@@ -138,10 +139,14 @@
           })
         })
     } else {
+
+      let fwlist = document.querySelector("#fw-list>ul")
+      fwlist.remove()
       fetch(`/api/v1/tw/${username}`)
         .then(rows => rows.json())
         .then(rows => {
           let twTemplate = document.querySelector("#tweet-template")
+          twTemplate.remove()
           let twContainer = document.querySelector("#user-tweets")
           rows.forEach(row => {
             tw = twTemplate.cloneNode(true)

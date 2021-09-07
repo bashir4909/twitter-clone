@@ -235,7 +235,43 @@ app.post("/api/v1/:username/follow", (req, res) => {
   })
 })
 
-// MISCALLENOUS
+// tweet / retweet
+app.post("/api/v1/newtweet", (req, res) => {
+  let $id = req.session.userid
+  let $twtText = req.body.content
+  db.run(`
+  INSERT INTO tweet (content, userid, tweetdate)
+  VALUES ($twtText, $id, datetime('now'))
+  `, { $id, $twtText }, (err) => {
+    if (err) { console.log(err) }
+    res.redirect("back")
+  })
+})
+
+app.post("/api/v1/retweet", (req, res) => {
+  $id = req.session.userid
+  $tweetid = req.body.tweetid
+  db.run(`
+  INSERT INTO retweet (userid, tweetid, retweetdate)
+  VALUES ($id, $tweetid, datetime('now'))
+  `, { $id, $tweetid }, (err) => {
+    if (err) { console.log(err) }
+    res.redirect('back')
+  })
+})
+app.post("/api/v1/undoretweet", (req, res) => {
+    $id = req.session.userid
+    $tweetid = req.body.tweetid
+    db.run(`
+  DELETE FROM retweet 
+  WHERE userid IS $id
+  AND tweetid IS $tweetid
+  `, { $id, $tweetid }, (err) => {
+      if (err) { console.log(err) }
+      res.redirect('back')
+    })
+  })
+  // MISCALLENOUS
 app.get("/api/v1/timeline", (req, res) => {
   let $id = req.session.userid
   console.log(`==> REQUEST: timeline for userid: ${$id}`)
@@ -280,6 +316,30 @@ ORDER BY odate DESC
       res.json(rows)
     })
   }, () => res.json([]))
+})
+
+app.get("/api/v1/suggest", (req, res) => {
+  $id = req.session.userid
+  db.all(`
+  SELECT username
+  FROM user
+  WHERE rowid NOT IN (SELECT followingid FROM follow WHERE followerid IS $id) 
+  `, { $id }, (err, rows) => {
+    if (err) { console.log(err) }
+    res.json(rows)
+  })
+})
+
+app.get("/api/v1/whoami", (req, res) => {
+  $id = req.session.userid
+  db.get(`
+  SELECT username
+  FROM user
+  WHERE rowid IS $id
+  `, { $id }, (err, row) => {
+    if (err) { console.log(err) }
+    res.json(row)
+  })
 })
 
 app.listen(3000)

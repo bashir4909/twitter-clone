@@ -162,3 +162,8 @@ FROM follow fw
 LEFT JOIN user AS u ON fw.followerid=u.rowid
 LEFT JOIN user AS uu ON fw.followingid=uu.rowid
 WHERE u.username IS 'rick'
+
+--@block
+SELECT username
+FROM user
+WHERE rowid NOT IN (SELECT followingid FROM follow WHERE followerid IS 8) 
