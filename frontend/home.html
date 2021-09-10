@@ -13,22 +13,30 @@
 
 <body>
   <div class="page-container">
-    <div class="navbar-container">
-      <a href="/home">HOME</a>
-      <a href="/explore">EXPLORE</a>
-      <a href="/u">PROFILE</a>
-      <form action="/api/v1/logout" method="post">
-        <input type="submit" value="Logout">
-      </form>
+    <div class="top-header">
+      <div class="navbar-container">
+        <nav>
+          <ul>
+            <li><a href="/home">HOME</a></li>
+            <li><a href="/explore">EXPLORE</a></li>
+            <li><a href="/u">PROFILE</a></li>
+            <li>
+              <form action="/api/v1/logout" method="post">
+                <input type="submit" value="Logout">
+              </form>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <div id="new-tweet" class="new-tweet-container">
+        <img src="https://is2-ssl.mzstatic.com/image/thumb/Purple115/v4/26/bc/b8/26bcb8f6-43c0-f111-c69d-961b3670a34d/source/256x256bb.jpg" alt="" class="user-profile-photo">
+        <form action="/api/v1/newtweet" method="post">
+          <input type="text" name="content" class="new-tweet-text-input">
+          <input type="submit" value="Tweet" class="new-tweet-submit">
+        </form>
+      </div>
     </div>
 
-    <div id="new-tweet">
-      <img src="https://is2-ssl.mzstatic.com/image/thumb/Purple115/v4/26/bc/b8/26bcb8f6-43c0-f111-c69d-961b3670a34d/source/256x256bb.jpg" alt="" class="user-profile-photo">
-      <form action="/api/v1/newtweet" method="post">
-        <input type="text" name="content" id="">
-        <input type="submit" value="Tweet">
-      </form>
-    </div>
 
     <div id="user-tweets">
       <ul>
@@ -47,17 +55,15 @@
 
   </div>
   <script>
-    (function() {
-      fetch('api/v1/islogged')
-        .then(row => row.json())
-        .then(row => {
-          if (!row.login) {
-            let addr = window.location.href.split("/")
-            addr.pop()
-            window.location.href = addr.join("/")
-          }
-        })
-    })()
+    fetch('/api/v1/islogged')
+      .then(row => row.json())
+      .then(row => {
+        if (!row.login) {
+          let addr = window.location.href.split("/")
+          addr.pop()
+          window.location.href = addr.join("/")
+        }
+      })
     fetch("/api/v1/whoami")
       .then(row => row.json())
       .then(row => {

@@ -12,20 +12,28 @@
 <body>
   <div class="page-container">
     <div class="navbar-container">
-      <a href="/home">HOME</a>
-      <a href="/explore">EXPLORE</a>
-      <a href="/u">PROFILE</a>
-      <form action="/api/v1/logout" method="post">
-        <input type="submit" value="Logout">
-      </form>
+
+      <nav>
+        <ul>
+          <li><a href="/home">HOME</a></li>
+          <li><a href="/explore">EXPLORE</a></li>
+          <li><a href="/u">PROFILE</a></li>
+          <li>
+            <form action="/api/v1/logout" method="post">
+              <input type="submit" value="Logout">
+            </form>
+          </li>
+        </ul>
+      </nav>
+
     </div>
-  </div>
-  <div id="user-suggestions">
-    <ul>
-      <li>
-        <a href=""></a>
-      </li>
-    </ul>
+    <div id="user-suggestions">
+      <ul>
+        <li>
+          <a href=""></a>
+        </li>
+      </ul>
+    </div>
   </div>
 
   <script>
