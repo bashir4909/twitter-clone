@@ -12,6 +12,52 @@ app.use(cors())
 
 const sqlite = require('sqlite3').verbose()
 db = new sqlite.Database('mytwitter.db')
+console.log(db)
+
+const SqlServerConnection = require('tedious').Connection
+const SqlServerRequest = require('tedious').Request
+
+const conn = new SqlServerConnection({
+  server: process.env.SqlServerHost,
+  authentication: {
+    type: 'default',
+    options: {
+      userName: process.env.SqlServerUsername,
+      password: process.env.SqlServerPassword
+    }
+  },
+  options: {
+    database: 'llmter',
+    trustServerCertificate: true,
+    useColumnNames: true
+  }
+})
+
+conn.on('connect', (err) => {
+  if (err) {
+    console.log(err)
+  } else {
+    let request = new SqlServerRequest(`
+      select *
+      from llmter.users
+    `, (err, rowCount) => {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(rowCount)
+      }
+    })
+
+    request.on('row', (cols) => {
+      console.log(cols)
+    })
+
+    conn.execSql(request)
+
+  }
+})
+
+conn.connect()
 
 // const cookieparser = require('cookie-parser')
 // app.use(cookieparser(
@@ -24,9 +70,9 @@ app.use(express.urlencoded())
 // ===> Website logic <=== //
 
 // STATIC pages to serve
-app.use("/home", express.static("frontend/home.html"), )
-app.use("/signup", express.static("frontend/signup.html"), )
-app.use("/explore", express.static("frontend/explore.html"), )
+app.use("/home", express.static("frontend/home.html"),)
+app.use("/signup", express.static("frontend/signup.html"),)
+app.use("/explore", express.static("frontend/explore.html"),)
 app.use("/u/:username", express.static("frontend/user.html"))
 app.use("/u/:username/follower", express.static("frontend/user.html"))
 app.use("/u/:username/following", express.static("frontend/user.html"))
@@ -73,16 +119,16 @@ app.use("/$", (req, res) => {
     res.redirect("/login")
   } else {
     isLoggedIn(req.session.userid, () => res.redirect('/home'), () => { res.redirect('/login') })
-      //   db.get(`
-      // SELECT * FROM user WHERE rowid IS $id
-      // `, { $id: req.session.userid }, (err, row) => {
-      //     if (err) { console.log(err) }
-      //     if (row) {
-      //       res.redirect("/home")
-      //     } else {
-      //       res.redirect("/login")
-      //     }
-      //   })
+    //   db.get(`
+    // SELECT * FROM user WHERE rowid IS $id
+    // `, { $id: req.session.userid }, (err, row) => {
+    //     if (err) { console.log(err) }
+    //     if (row) {
+    //       res.redirect("/home")
+    //     } else {
+    //       res.redirect("/login")
+    //     }
+    //   })
   }
 })
 
@@ -121,7 +167,7 @@ app.get("/api/v1/u/:username", (req, res) => {
   let $username = req.params.username
   var query
   var $viewerid
-    // Decrease the no of lines
+  // Decrease the no of lines
   if (req.session) {
     $viewerid = req.session.userid
     query = `
@@ -260,18 +306,18 @@ app.post("/api/v1/retweet", (req, res) => {
   })
 })
 app.post("/api/v1/undoretweet", (req, res) => {
-    $id = req.session.userid
-    $tweetid = req.body.tweetid
-    db.run(`
+  $id = req.session.userid
+  $tweetid = req.body.tweetid
+  db.run(`
   DELETE FROM retweet 
   WHERE userid IS $id
   AND tweetid IS $tweetid
   `, { $id, $tweetid }, (err) => {
-      if (err) { console.log(err) }
-      res.redirect('back')
-    })
+    if (err) { console.log(err) }
+    res.redirect('back')
   })
-  // MISCALLENOUS
+})
+// MISCALLENOUS
 app.get("/api/v1/timeline", (req, res) => {
   let $id = req.session.userid
   console.log(`==> REQUEST: timeline for userid: ${$id}`)
