@@ -1,0 +1,96 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  list-style-type: none;
+}
+
+.page-container {
+  width: 80%;
+  max-width: 600px;
+  min-width: 300px;
+  margin: auto;
+  border: solid green;
+}
+
+.new-tweet-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.new-tweet-container>form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 2;
+}
+
+.new-tweet-text-input {
+  height: 3em;
+}
+
+.new-tweet-submit {
+  display: float;
+  float: right;
+  width: 50px;
+}
+
+.navbar-container>nav>ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.navbar-container>nav>ul>li {
+  border: solid red;
+  padding: 5px;
+  margin: 2px;
+  background: cyan;
+  flex-grow: 1;
+}
+
+.user-profile-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 25%;
+}
+
+#user-banner {
+  display: flex;
+  flex-direction: row;
+  border: solid black;
+}
+
+#user-banner .username {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#user-banner .fullname {
+  font-family: cursive;
+  font-size: 24px;
+}
+
+#user-banner>.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+#user-banner>.user-info p {
+  display: inline;
+  border: solid green;
+}
+
+#tweet-template {
+  display: none;
+}
+
+.tweet-view {
+  border: solid pink;
+  vertical-align: top;
+}
+
+.tweet-view>* {
+  display: inline;
+}

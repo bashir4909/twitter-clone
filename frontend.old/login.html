@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+
+<body>
+
+  <div id="login-form-container">
+    <form action="/api/v1/login" method="POST" id="login-form">
+      <div>
+        <label for="username">Username</label>
+        <input type="text" name="username" placeholder="classybot">
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" name="password" placeholder="oh it is secret">
+      </div>
+      <input type="submit" name="login" value="Login">
+      <div class="right-align">
+        <p>Or you can <a href="/signup">Create new user</a></p>
+      </div>
+    </form>
+
+    <script>
+      (function() {
+        fetch('api/v1/islogged')
+          .then(row => row.json())
+          .then(row => {
+            if (row.login) {
+              let addr = window.location.href.split("/")
+              addr.pop()
+              window.location.href = addr.join("/")
+            }
+          })
+      })()
+    </script>
+
+    <style>
+      #login-form>* {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 60%;
+        padding: 0;
+      }
+      
+      #login-form-container {
+        width: 80%;
+        padding: 0;
+        margin: auto;
+        max-width: 600px;
+        border: solid red;
+      }
+    </style>
+</body>
+
+</html>
