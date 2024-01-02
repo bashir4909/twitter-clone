@@ -8,23 +8,24 @@ import {
   redirect
 } from 'react-router-dom'
 
-let isLoggedIn = false;
-
 const router = createBrowserRouter([
   {
     path: "/",
-    loader: () => {
-      if (isLoggedIn) {
-        return redirect("/home")
-      } else {
+    loader: async () => {
+      let username = await fetch("http://localhost:4000/users/whoami", {credentials : 'include'}).then(res => res.json())
+      username = username['username']
+      console.log(username)
+      if (username === null) {
         return redirect("/login")
+      } else {
+        return redirect("/home")
       }
     }
   },
   {
     path: '/home',
     element: <Timeline />
-  }, 
+  },
   {
     path: '/login',
     element: <Login />

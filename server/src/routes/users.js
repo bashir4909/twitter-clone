@@ -24,6 +24,7 @@ function sha256hash(text) {
 }
 
 router.get('/whoami', async (req, res) => {
+  console.log(req.session)
   if (req.session.uuid === undefined) {
     res.send({
       'username' : null
@@ -51,8 +52,8 @@ router.post('/login', async (req, res) => {
     let doc = querySnapshot.docs[0]
     let passwordHash = doc.data()['passwordHash']
     if (passwordHash === sha256hash(password)) {
-      console.log(doc.id)
       req.session.uuid = doc.id
+      console.log(req.session)
       res.status(200)
       res.json({
         "message" : "Login successful"
