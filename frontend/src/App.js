@@ -1,21 +1,41 @@
-import logo from './logo.svg';
 import './App.css';
-import Tweet from './Tweet.js';
+import { Tweet, Timeline } from './Tweet.js';
+import { Login } from './Login.js';
+import Navigation from './Navigation.js';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  redirect
+} from 'react-router-dom'
+
+let isLoggedIn = false;
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    loader: () => {
+      if (isLoggedIn) {
+        return redirect("/home")
+      } else {
+        return redirect("/login")
+      }
+    }
+  },
+  {
+    path: '/home',
+    element: <Timeline />
+  }, 
+  {
+    path: '/login',
+    element: <Login />
+  }
+])
 
 function App() {
-  let array = [
-    { profileImage: logo, tweetText: "Text 1" },
-    { profileImage: logo, tweetText: "Text www" },
-  ]
   return (
-
     <div className="App">
-      {array.map(item => 
-        <Tweet
-          profileImage={item.profileImage}
-          tweetText={item.tweetText}
-        />
-      )}
+      <Navigation />
+      <RouterProvider router={router} />
     </div>
   );
 }

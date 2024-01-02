@@ -1,0 +1,8 @@
+.navigation-strip ul {
+    display: flex;
+    flex-direction: row;
+}
+
+.navigation-strip li {
+    flex-grow: 1;
+}
