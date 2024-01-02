@@ -1,0 +1,21 @@
+.tweet {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    background: #32768623;
+    margin: 2px;
+
+    border: solid 2px;
+    border-radius: 2px;
+    border-color: #366b179c;
+}
+
+.tweet * {
+    margin: 1%;
+}
+
+.tweetText {
+    flex-grow: 3;
+    text-align: left;
+}
