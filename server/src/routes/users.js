@@ -73,6 +73,11 @@ router.post('/login', async (req, res) => {
 
 })
 
+router.post('/logout', (req, res) => {
+  req.session=null
+  res.send("OK")
+})
+
 router.post('/signup', async (req, res) => {
   try {
     let username = req.body.username;

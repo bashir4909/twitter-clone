@@ -1,6 +1,6 @@
 import './App.css';
 import { Tweet, Timeline } from './Tweet.js';
-import { Login } from './Login.js';
+import { Login, SignUp } from './Login.js';
 import Navigation from './Navigation.js';
 import {
   createBrowserRouter,
@@ -29,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: <Login />
+  },
+  {
+    path: '/signup',
+    element: <SignUp/>
   }
 ])
 
