@@ -1,8 +1,9 @@
 import express from 'express';
 import { initializeApp } from "firebase/app";
-import { getFirestore, addDoc, collection, getDoc, where, getDocs, query, doc } from 'firebase/firestore';
+import { getFirestore, addDoc, collection, getDoc, where, getDocs, query, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import dotenv from 'dotenv';
 import { createHash } from 'crypto';
+import { post } from '.';
 
 dotenv.config()
 
@@ -27,18 +28,18 @@ router.get('/whoami', async (req, res) => {
   console.log(req.session)
   if (req.session.uuid === undefined) {
     res.send({
-      'username' : null
+      'username': null
     })
   } else {
     let docRef = doc(fstore, 'users', req.session.uuid)
     let userDoc = await getDoc(docRef)
     if (userDoc) {
       res.json({
-        'username' : userDoc.data(0)['username']
+        'username': userDoc.data(0)['username']
       })
     } else {
       res.json({
-        'username':null
+        'username': null
       })
     }
   }
@@ -56,25 +57,25 @@ router.post('/login', async (req, res) => {
       console.log(req.session)
       res.status(200)
       res.json({
-        "message" : "Login successful"
+        "message": "Login successful"
       })
     } else {
       res.status(200)
       res.json({
-        "message" : "Invalid password"
+        "message": "Invalid password"
       })
     }
   } else {
     res.status(200)
     res.json({
-      "message" : "Login failed"
+      "message": "Login failed"
     })
   }
 
 })
 
 router.post('/logout', (req, res) => {
-  req.session=null
+  req.session = null
   res.send("OK")
 })
 
@@ -90,13 +91,32 @@ router.post('/signup', async (req, res) => {
     req.session.uuid = docRef.id
     res.status(200)
     res.json({
-      'message' : "Sign-up successful"
+      'message': "Sign-up successful"
     })
   } catch (error) {
     res.status(404)
     res.json(error)
   }
 
+})
+
+
+router.post('/follow', async (req, res) => {
+  let userDocRef = doc(fstores, 'users', req.session.uuid)
+  await updateDoc(userDocRef, {
+    following: arrayUnion(req.body.followingUUID)
+  })
+
+})
+
+router.get('/explore', async (_, res) => {
+  let users = await getDocs(query(collection(fstore, 'users')))
+  res.json(
+    users.docs.map(row => {
+      let {passwordHash,...rowData} = {uuid : row.id,...row.data()}
+      return rowData
+    })
+  )
 })
 
 module.exports = router;

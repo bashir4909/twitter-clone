@@ -1,5 +1,5 @@
 import './App.css';
-import { Tweet, Timeline } from './Tweet.js';
+import { Tweet, Timeline, NewTweet} from './Tweet.js';
 import { Login, SignUp } from './Login.js';
 import Navigation from './Navigation.js';
 import {
@@ -24,7 +24,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/home',
-    element: <Timeline />
+    element: <TimelineNewTweetContainer />
   },
   {
     path: '/login',
@@ -35,6 +35,15 @@ const router = createBrowserRouter([
     element: <SignUp/>
   }
 ])
+
+function TimelineNewTweetContainer() {
+  return (
+    <div>
+      <NewTweet/>
+      <Timeline/>
+    </div>
+  )
+}
 
 function App() {
   return (

@@ -3,15 +3,43 @@ import replyArrow from './assets/replyArrow.png'
 import retweetArrow from './assets/retweetArrow.png'
 import logo from './logo.svg';
 
-function Tweet({profileImage, tweetText}) {
-    return (
-        <div className="tweet">
-            <img src={profileImage} width={50} height={50}></img>
-            <p className="tweetText">{tweetText}</p>
-            <img src={replyArrow} width={25} height={25}></img>
-            <img src={retweetArrow} width={25} height={25}></img>
-        </div>
-    )
+function NewTweet({ }) {
+
+  function postNewTweet(evt) {
+    evt.preventDefault()
+    const [textAreaField, _] = evt.target.children
+    const tweetContent = textAreaField.value
+    console.log(tweetContent);
+    fetch("http://localhost:4000/tweets/newtweet", {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      mode:'cors',
+      credentials:'include',
+      body:JSON.stringify({
+        tweetContent: tweetContent
+      })
+    })
+  }
+
+  return (
+    <form className='new-tweet' onSubmit={postNewTweet}>
+      <textarea></textarea>
+      <input type='submit' value='submit'></input>
+    </form>
+  )
+}
+
+function Tweet({ profileImage, tweetText }) {
+  return (
+    <div className="tweet">
+      <img src={profileImage} width={50} height={50}></img>
+      <p className="tweetText">{tweetText}</p>
+      <img src={replyArrow} width={25} height={25}></img>
+      <img src={retweetArrow} width={25} height={25}></img>
+    </div>
+  )
 }
 
 function Timeline() {
@@ -35,7 +63,8 @@ function Timeline() {
   )
 }
 
-export  {
-    Tweet, 
-    Timeline
+export {
+  Tweet,
+  Timeline,
+  NewTweet
 };

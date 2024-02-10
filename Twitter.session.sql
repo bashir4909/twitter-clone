@@ -1,7 +1,7 @@
 --@block
 INSERT INTO user (username, fullname, bio)
 VALUES 
--- ("test_user1", "Test User1", "Robots are not biological");
+    ("rickymicky", "Ricky Micky", "Robots are not biological");
 -- ("test_user2", "Test User2", "beep boop, space, i am in space, spaceeee");
 -- ("test_user3", "Test User3", "cats are cute according to my calculations");
 -- ("test_user4", "Test User4", "death to all humanzzz, but change my oil first, plzz");
@@ -167,3 +167,12 @@ WHERE u.username IS 'rick'
 SELECT username
 FROM user
 WHERE rowid NOT IN (SELECT followingid FROM follow WHERE followerid IS 8) 
+
+--@block
+SELECT 
+    name
+FROM 
+    sqlite_schema
+WHERE 
+    type ='table' AND 
+    name NOT LIKE 'sqlite_%';
