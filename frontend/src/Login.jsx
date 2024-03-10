@@ -36,8 +36,8 @@ function Login() {
     return (
         <div className="cont">
             <form onSubmit={handleLogin} className="form">
-                <input name="username" type="text" className="user" ></input>
-                <input name="password" type="password" className="pass"></input>
+                <input name="username" type="text" className="user" placeholder="Username"></input>
+                <input name="password" type="password" className="pass" placeholder="Password"></input>
                 <input type="submit" value="Submit" className="login"></input>
                 <p></p>
             </form>

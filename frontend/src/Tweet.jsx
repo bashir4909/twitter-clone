@@ -52,7 +52,7 @@ function Timeline() {
   ];
   array = array.concat(...[array, array, array]);
   return (
-    <div>
+    <div className='timeline'>
       {array.map(item =>
         <Tweet
           profileImage={item.profileImage}
