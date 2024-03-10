@@ -1,3 +1,5 @@
+import "./Login.css"
+
 function Login() {
 
     function handleLogin(evt) {
@@ -16,30 +18,27 @@ function Login() {
             }),
             mode: 'cors',
             credentials: 'include'
-
-        })
-            .then(res => {
-                console.log(res);
-                return res.json();
-            })
-            .then(res => {
-                console.log(res)
-                if (res.message == "Login successful") {
-                    let addr = window.location.href.split("/");
-                    addr.pop();
-                    window.location.href = addr.join("/");
-                } else {
-                    messageArea.innerText = res.message;
-                }
-            });
+        }).then(res => {
+            console.log(res);
+            return res.json();
+        }).then(res => {
+            console.log(res)
+            if (res.message == "Login successful") {
+                let addr = window.location.href.split("/");
+                addr.pop();
+                window.location.href = addr.join("/");
+            } else {
+                messageArea.innerText = res.message;
+            }
+        });
     }
 
     return (
-        <div>
-            <form onSubmit={handleLogin}>
-                <input name="username" type="text" ></input>
-                <input name="password" type="password"></input>
-                <input type="submit" value="Submit" ></input>
+        <div className="cont">
+            <form onSubmit={handleLogin} className="form">
+                <input name="username" type="text" className="user" ></input>
+                <input name="password" type="password" className="pass"></input>
+                <input type="submit" value="Submit" className="login"></input>
                 <p></p>
             </form>
             <p>Or you can <a href="/signup">create user</a></p>
@@ -90,7 +89,7 @@ function SignUp() {
 
     return (
         <div>
-            <form onSubmit={handleSignUp}>
+            <form onSubmit={handleSignUp} className=".signup-form">
                 <input name="username" type="text" ></input>
                 <input name="password" type="password"></input>
                 <input name="passwordConfirm" type="password"></input>
@@ -102,4 +101,4 @@ function SignUp() {
     );
 }
 
-export { Login, SignUp};
+export { Login, SignUp };
