@@ -1,24 +1,24 @@
 import './App.css';
-import { Tweet, Timeline, NewTweet} from './Tweet.js';
-import { Login, SignUp } from './Login.js';
-import Navigation from './Navigation.js';
+import { Tweet, Timeline, NewTweet } from './Tweet';
+import { Login, SignUp } from './Login';
+import Navigation from './Navigation';
 import {
   createBrowserRouter,
   RouterProvider,
   redirect
-} from 'react-router-dom'
+} from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
     path: "/",
     loader: async () => {
-      let username = await fetch("http://localhost:4000/users/whoami", {credentials : 'include'}).then(res => res.json())
-      username = username['username']
-      console.log(username)
+      let username = await fetch("http://localhost:4000/users/whoami", { credentials: 'include' }).then(res => res.json());
+      username = username['username'];
+      console.log(username);
       if (username === null) {
-        return redirect("/login")
+        return redirect("/login");
       } else {
-        return redirect("/home")
+        return redirect("/home");
       }
     }
   },
@@ -32,17 +32,17 @@ const router = createBrowserRouter([
   },
   {
     path: '/signup',
-    element: <SignUp/>
+    element: <SignUp />
   }
 ])
 
 function TimelineNewTweetContainer() {
   return (
     <div>
-      <NewTweet/>
-      <Timeline/>
+      <NewTweet />
+      <Timeline />
     </div>
-  )
+  );
 }
 
 function App() {

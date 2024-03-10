@@ -1,8 +1,8 @@
 function Login() {
 
     function handleLogin(evt) {
-        evt.preventDefault()
-        let [usernameField, passwordField, _, messageArea] = evt.target.children
+        evt.preventDefault();
+        let [usernameField, passwordField, _, messageArea] = evt.target.children;
         let username = usernameField.value;
         let password = passwordField.value;
         fetch("http://localhost:4000/users/login", {
@@ -19,19 +19,19 @@ function Login() {
 
         })
             .then(res => {
-                console.log(res)
-                return res.json()
+                console.log(res);
+                return res.json();
             })
             .then(res => {
                 console.log(res)
                 if (res.message == "Login successful") {
-                    let addr = window.location.href.split("/")
-                    addr.pop()
-                    window.location.href = addr.join("/")
+                    let addr = window.location.href.split("/");
+                    addr.pop();
+                    window.location.href = addr.join("/");
                 } else {
-                    messageArea.innerText = res.message
+                    messageArea.innerText = res.message;
                 }
-            })
+            });
     }
 
     return (
@@ -44,14 +44,14 @@ function Login() {
             </form>
             <p>Or you can <a href="/signup">create user</a></p>
         </div>
-    )
+    );
 }
 
 function SignUp() {
 
     function handleSignUp(evt) {
-        evt.preventDefault()
-        let [usernameField, passwordField, passwordConfirmField, _, messageArea] = evt.target.children
+        evt.preventDefault();
+        let [usernameField, passwordField, passwordConfirmField, _, messageArea] = evt.target.children;
         let username = usernameField.value;
         let password = passwordField.value;
         let passwordConfirm = passwordConfirmField.value;
@@ -70,21 +70,21 @@ function SignUp() {
 
             })
                 .then(res => {
-                    console.log(res)
-                    return res.json()
+                    console.log(res);
+                    return res.json();
                 })
                 .then(res => {
                     console.log(res)
                     if (res.message == "Sign-up successful") {
-                        let addr = window.location.href.split("/")
-                        addr.pop()
-                        window.location.href = addr.join("/")
+                        let addr = window.location.href.split("/");
+                        addr.pop();
+                        window.location.href = addr.join("/");
                     } else {
-                        messageArea.innerText = res.message
+                        messageArea.innerText = res.message;
                     }
-                })
+                });
         } else {
-            messageArea.innerText = "passwords do not match"
+            messageArea.innerText = "passwords do not match";
         }
     }
 
@@ -99,7 +99,7 @@ function SignUp() {
             </form>
             <p>Already have account? <a href="/login">login here</a></p>
         </div>
-    )
+    );
 }
 
 export { Login, SignUp};

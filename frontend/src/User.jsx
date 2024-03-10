@@ -8,14 +8,14 @@ function User({ username, userUUID}) {
             body: {
                 followingUUID : userUUID
             }
-        })
+        });
     }
     return (
         <div>
             <p>@{username}</p>
             <button onClick={followUser}>follow</button>
         </div>
-    )
+    );
 }
 
 export {User};
