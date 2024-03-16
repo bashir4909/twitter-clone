@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import './Tweet.css';
 import replyArrow from './assets/replyArrow.png';
 import retweetArrow from './assets/retweetArrow.png';
@@ -7,22 +8,22 @@ function NewTweet({ }) {
 
   async function postNewTweet(evt) {
 
-      evt.preventDefault();
+    evt.preventDefault();
 
-      const [textAreaField, _] = evt.target.children;
-      const tweetContent = textAreaField.value;
+    const [textAreaField, _] = evt.target.children;
+    const tweetContent = textAreaField.value;
 
-      let newTweetStatus = await fetch("http://localhost:4000/tweets/newtweet", {
-          method: 'POST',
-          headers: {
-              'Content-type': 'application/json'
-          },
-          mode:'cors',
-          credentials:'include',
-          body:JSON.stringify({
-              tweetContent: tweetContent
-          })
-      });
+    let newTweetStatus = await fetch("http://localhost:4000/tweets/newtweet", {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      mode: 'cors',
+      credentials: 'include',
+      body: JSON.stringify({
+        tweetContent: tweetContent
+      })
+    });
   }
 
   return (
@@ -33,11 +34,11 @@ function NewTweet({ }) {
   );
 }
 
-function Tweet({ profileImage, tweetText }) {
+function Tweet({ profileImage, tweetAuthor, tweetText }) {
   return (
     <div className="tweet">
       <img src={profileImage} width={50} height={50}></img>
-      <p className="tweetText">{tweetText}</p>
+      <p className="tweetText"><b>@{tweetAuthor}</b> : {tweetText}</p>
       <img src={replyArrow} width={25} height={25}></img>
       <img src={retweetArrow} width={25} height={25}></img>
     </div>
@@ -45,18 +46,30 @@ function Tweet({ profileImage, tweetText }) {
 }
 
 function Timeline() {
+  const [tweets, setTweets] = useState([]);
 
-  let array = [
-    { profileImage: logo, tweetText: "Text 1" },
-    { profileImage: logo, tweetText: "Text www" },
-  ];
-  array = array.concat(...[array, array, array]);
+  useEffect(() => {
+    fetch("http://localhost:4000/tweets/timeline", {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      mode: 'cors',
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then(res => {
+          setTweets(res);
+      });
+  }, []);
+
   return (
     <div className='timeline'>
-      {array.map(item =>
+      {tweets.map(item =>
         <Tweet
-          profileImage={item.profileImage}
-          tweetText={item.tweetText}
+          profileImage={logo}
+          tweetAuthor={item.authorUUID}
+          tweetText={item.content}
         />
       )}
     </div>
