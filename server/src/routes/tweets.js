@@ -76,7 +76,8 @@ router.get('/timeline', async (req, res) => {
         let tweetsData = tweets.docs.map(row => row.data()).map(row => {
             return {
                 ...row,
-                "authorUUID": usernameUUIDmapping[row["authorUUID"]],
+                "authorUsername": usernameUUIDmapping[row["authorUUID"]],
+                "authorUUID": row["authorUUID"],
             };
         });
         res.status(200);

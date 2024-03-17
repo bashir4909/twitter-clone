@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './Tweet.css';
 import replyArrow from './assets/replyArrow.png';
 import retweetArrow from './assets/retweetArrow.png';
+import {User} from './User';
 import logo from './logo.svg';
 
 function NewTweet({ }) {
@@ -28,17 +29,19 @@ function NewTweet({ }) {
 
   return (
     <form className='new-tweet' onSubmit={postNewTweet}>
-      <textarea></textarea>
-      <input type='submit' value='submit'></input>
+      <textarea>
+      </textarea>
+      <input type='submit' value='>'></input>
     </form>
   );
 }
 
-function Tweet({ profileImage, tweetAuthor, tweetText }) {
+function Tweet({ profileImage, tweetAuthor, tweetAuthorUUID, tweetText }) {
   return (
     <div className="tweet">
       <img src={profileImage} width={50} height={50}></img>
-      <p className="tweetText"><b>@{tweetAuthor}</b> : {tweetText}</p>
+      <User username={tweetAuthor} userUUID={tweetAuthorUUID} />
+      <p className="tweetText">{tweetText}</p>
       <img src={replyArrow} width={25} height={25}></img>
       <img src={retweetArrow} width={25} height={25}></img>
     </div>
@@ -68,7 +71,8 @@ function Timeline() {
       {tweets.map(item =>
         <Tweet
           profileImage={logo}
-          tweetAuthor={item.authorUUID}
+          tweetAuthor={item.authorUsername}
+          tweetAuthorUUID={item.authorUsername}
           tweetText={item.content}
         />
       )}

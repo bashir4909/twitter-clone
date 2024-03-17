@@ -18,13 +18,15 @@ async function logout() {
 function Navigation() {
     return (
         <nav className="navigation-strip">
-            <ul>
-                <li>Home</li>
-                <li>Explore</li>
-                <li><button onClick={logout}>Logout</button></li>
-            </ul>
+          <ul>
+            <li><a href="/home">Home</a></li>
+            <li><a href="/explore">Explore</a></li>
+            <li><button onClick={logout}>Logout</button></li>
+          </ul>
         </nav>
     );
 }
 
-export default Navigation;
+export {
+    Navigation
+};

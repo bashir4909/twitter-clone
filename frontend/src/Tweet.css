@@ -35,3 +35,36 @@
     flex-grow: 3;
     text-align: left;
 }
+
+.new-tweet {
+    display: flexbox;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+.new-tweet textarea {
+    width: 85%;
+    height: 3em;
+    flex-grow: 2;
+    margin-left: 1%;
+    resize: none;
+    border: none;
+}
+
+.new-tweet input {
+    width: 1.5em;
+    height: 1.5em;
+    flex-grow: 1;
+    border: none;
+    border-radius: 100%;
+    background-color: cyan;
+    position: absolute;
+    transform: translate(-100%, 100%);
+}
+
+.new-tweet input:hover {
+    background: blue;
+}
